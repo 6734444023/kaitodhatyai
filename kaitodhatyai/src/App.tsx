@@ -46,7 +46,7 @@ function Navbar({ user, isMobileMenuOpen, setIsMobileMenuOpen }: { user: User | 
             <div className="brand-icon">
               <MapPin size={24} color="white" />
             </div>
-            <span className="brand-name">Kaitodhatyai</span>
+            <span className="brand-name">hatyaitongrod</span>
           </div>
           
           {/* Desktop Menu */}
