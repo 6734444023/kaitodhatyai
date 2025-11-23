@@ -94,7 +94,7 @@ function LandingPage() {
                 <HandHeart size={40} className="step-icon" />
               </div>
               <h3>4. รับความช่วยเหลือ</h3>
-              <p>อาสาสมัครหรือทีมกู้ภัยที่อยู่ใกล้จะเห็นหมุดคุณและติดต่อกลับทันที</p>
+              <p>อาสาสมัครหรือทีมกู้ภัยที่อยู่ใกล้จะเห็นหมุดคุณและติดต่อกลับ</p>
             </div>
           </div>
         </div>
@@ -105,9 +105,9 @@ function LandingPage() {
         <div className="container flex items-center justify-between">
           <div className="footer-contact flex items-center gap-2">
             {/* <Phone size={18} /> */}
-            <span>สายด่วนฉุกเฉิน: 1669 แพทย์ฉุกเฉิน</span>
+            <span>สายด่วนฉุกเฉิน: 1669 แพทย์ฉุกเฉิน,1663 กู้ภัย</span>
           </div>
-          <p className="copyright">© 2024 Kaitodhatyai create Patcharakiri sichat</p>
+          <p className="copyright">© 2024 Kaitodhatyai </p>
         </div>
       </footer>
     </div>
