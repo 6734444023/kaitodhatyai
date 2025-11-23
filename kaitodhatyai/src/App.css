@@ -332,7 +332,7 @@
 .footer {
   background: #1e293b;
   color: white;
-  padding: 1.5rem 0;
+  padding: 2rem 0;
   margin-top: auto;
 }
 
@@ -343,9 +343,25 @@
   text-align: center;
 }
 
+.footer-phone {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: block;
+  line-height: 1.5;
+}
+
 .copyright {
   font-size: 0.875rem;
   color: #94a3b8;
+}
+
+@media (min-width: 768px) {
+  .footer .container {
+    flex-direction: row;
+    text-align: left;
+    justify-content: space-between;
+  }
 }
 
 /* Desktop Responsive Overrides */
@@ -629,26 +645,7 @@
   }
 }
 
-/* Footer */
-.footer {
-  background: #1e293b;
-  color: white;
-  padding: 2rem 0;
-  margin-top: auto;
-}
 
-.footer .container {
-  flex-direction: column;
-  gap: 1rem;
-  text-align: center;
-}
-
-@media (min-width: 768px) {
-  .footer .container {
-    flex-direction: row;
-    text-align: left;
-  }
-}
 
 
 /* Hero Section */
@@ -890,18 +887,7 @@
   font-size: 0.95rem;
 }
 
-/* Footer */
-.footer {
-  background: #1e293b;
-  color: white;
-  padding: 2rem 0;
-  margin-top: auto;
-}
 
-.copyright {
-  font-size: 0.875rem;
-  color: #94a3b8;
-}
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
