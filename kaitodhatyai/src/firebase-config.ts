@@ -2,6 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, Timestamp } from 'firebase/firestore';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 
 // !!! สำคัญ: แทนที่ข้อมูลด้านล่างนี้ด้วย Firebase Config ของคุณเอง !!!
 const firebaseConfig = {
@@ -21,3 +22,14 @@ export const db = getFirestore(app); // Export Firestore instance
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export { Timestamp };
+
+let analytics;
+// ตรวจสอบว่า Analytics ถูกรองรับในสภาพแวดล้อมปัจจุบันหรือไม่
+isSupported().then(supported => {
+  if (supported) {
+    analytics = getAnalytics(app);
+  }
+});
+
+export { analytics }; // Export analytics instance ออกไป
+// --- จบส่วนเพิ่ม ---
