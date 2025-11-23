@@ -107,7 +107,7 @@ function LandingPage() {
             {/* <Phone size={18} /> */}
             <span className="footer-phone">สายด่วนฉุกเฉิน: 1669 แพทย์ฉุกเฉิน, 1663 กู้ภัย</span>
           </div>
-          <p className="copyright">โทร 0991648465 create by Patcharakiri Sichat computer science Chulalongkorn 0991648465</p>
+          <p className="copyright">create by Patcharakiri Sichat computer science Chulalongkorn 0991648465</p>
         </div>
       </footer>
     </div>
