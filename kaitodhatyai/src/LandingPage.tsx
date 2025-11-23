@@ -105,7 +105,7 @@ function LandingPage() {
         <div className="container flex items-center justify-between">
           <div className="footer-contact flex items-center justify-center gap-2 flex-wrap">
             {/* <Phone size={18} /> */}
-            <span className="footer-phone">สายด่วนฉุกเฉิน: 1669 แพทย์ฉุกเฉิน, 1663 กู้ภัย</span>
+            <span className="footer-phone">สายด่วนฉุกเฉิน: 1669 แพทย์ฉุกเฉิน, 1163 กู้ภัย</span>
           </div>
           <p className="copyright">create by Patcharakiri Sichat computer science Chulalongkorn 0991648465</p>
         </div>
