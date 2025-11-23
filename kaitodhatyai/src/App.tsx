@@ -4,9 +4,9 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useSe
 import './App.css';
 import MapComponent from './MapComponent';
 import LandingPage from './LandingPage';
-import { auth, googleProvider, db } from './firebase-config';
+import { auth, googleProvider, db, messaging, getToken, onMessage } from './firebase-config';
 import { signInWithPopup, signOut, onAuthStateChanged, type User } from 'firebase/auth';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, setDoc } from 'firebase/firestore';
 
 // Component: Notification Toast
 function NotificationToast({ message, onClose }: { message: string, onClose: () => void }) {
@@ -165,14 +165,43 @@ function App() {
     return () => unsubscribeAuth();
   }, []);
 
-  // Listen for notifications (When someone accepts help)
+  // Request FCM Token
+  useEffect(() => {
+    const requestPermission = async () => {
+      try {
+        const permission = await Notification.requestPermission();
+        if (permission === 'granted') {
+          const token = await getToken(messaging, {
+            // vapidKey: 'YOUR_VAPID_KEY_HERE' // Optional: Add VAPID key if needed
+          });
+          console.log('FCM Token:', token);
+          
+          if (user) {
+            await setDoc(doc(db, 'users', user.uid), { 
+              fcmToken: token,
+              updatedAt: new Date()
+            }, { merge: true });
+          }
+        }
+      } catch (error) {
+        console.error('Error getting permission/token', error);
+      }
+    };
+
+    requestPermission();
+
+    // Handle foreground messages
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log('Message received. ', payload);
+      setNotification(payload.notification?.body || 'มีข้อความใหม่');
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  // Listen for notifications (When someone accepts help) - Local Listener Fallback
   useEffect(() => {
     if (!user) return;
-
-    // Request notification permission
-    if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-      Notification.requestPermission();
-    }
 
     const q = query(
       collection(db, 'needs'),
@@ -200,7 +229,7 @@ function App() {
                     body: message,
                     icon: '/pwa-192x192.png',
                     tag: 'help-accepted',
-                    // @ts-ignore - vibrate is valid in ServiceWorker registration
+                    // @ts-ignore
                     vibrate: [200, 100, 200]
                   });
                 });
