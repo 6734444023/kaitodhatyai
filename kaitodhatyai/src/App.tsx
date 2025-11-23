@@ -169,6 +169,11 @@ function App() {
   useEffect(() => {
     if (!user) return;
 
+    // Request notification permission
+    if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+      Notification.requestPermission();
+    }
+
     const q = query(
       collection(db, 'needs'),
       where('userId', '==', user.uid)
@@ -181,7 +186,18 @@ function App() {
           if (data.status === 'ACCEPTED') {
             const helperName = data.helperName || 'อาสาสมัคร';
             const helperPhone = data.helperPhone || '-';
-            setNotification(`หมุดของคุณได้รับการช่วยเหลือแล้ว! โดย ${helperName} (โทร: ${helperPhone}) กรุณารอการติดต่อกลับ`);
+            const message = `หมุดของคุณได้รับการช่วยเหลือแล้ว! โดย ${helperName} (โทร: ${helperPhone}) กรุณารอการติดต่อกลับ`;
+            
+            // In-app notification
+            setNotification(message);
+
+            // System Notification (Chrome/Mobile)
+            if (Notification.permission === 'granted') {
+              new Notification('มีผู้ช่วยเหลือแล้ว!', {
+                body: message,
+                icon: '/vite.svg' // Default icon
+              });
+            }
           }
         }
       });
