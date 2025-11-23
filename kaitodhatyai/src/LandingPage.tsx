@@ -107,7 +107,7 @@ function LandingPage() {
             {/* <Phone size={18} /> */}
             <span>สายด่วนฉุกเฉิน: 1669 แพทย์ฉุกเฉิน,1663 กู้ภัย</span>
           </div>
-          <p className="copyright">© 2024 hatyaitongrod </p>
+          <p className="copyright">© 2024 hatyaitongrod create by Patcharakiri Sichat computer science Chulalongkorn 0991648465</p>
         </div>
       </footer>
     </div>
