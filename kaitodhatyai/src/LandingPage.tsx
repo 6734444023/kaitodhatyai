@@ -1,4 +1,4 @@
-import { MapPin, LifeBuoy, HandHeart, Waves, Navigation, LogIn } from 'lucide-react';
+import { MapPin, LifeBuoy, HandHeart, Waves, Navigation, LogIn, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function LandingPage() {
@@ -57,7 +57,7 @@ function LandingPage() {
       <section className="steps-section">
         <div className="container">
           <h2 className="section-title text-center animate-fade-in delay-300">
-            ขอความช่วยเหลือง่ายๆ ใน 4 ขั้นตอน
+            ขอความช่วยเหลือง่ายๆ ใน 5 ขั้นตอน
           </h2>
 
           <div className="steps-grid">
@@ -95,6 +95,15 @@ function LandingPage() {
               </div>
               <h3>4. รับความช่วยเหลือ</h3>
               <p>อาสาสมัครหรือทีมกู้ภัยที่อยู่ใกล้จะเห็นหมุดคุณและติดต่อกลับ</p>
+            </div>
+
+            {/* Step 5 */}
+            <div className="step-card animate-fade-in delay-500">
+              <div className="step-icon-wrapper color-5">
+                <Trash2 size={40} className="step-icon" />
+              </div>
+              <h3>5. ลบหมุดเมื่อเสร็จสิ้น</h3>
+              <p>ถ้าได้รับความช่วยเหลือแล้วรบกวนกดที่หมุดตัวเองแล้วลบออกด้วย ขอบคุณครับ</p>
             </div>
           </div>
         </div>
