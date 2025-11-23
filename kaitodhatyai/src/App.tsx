@@ -1,11 +1,31 @@
-import { MapPin, Menu, X, LogIn, LogOut } from 'lucide-react';
+import { MapPin, Menu, X, LogIn, LogOut, Bell } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import './App.css';
 import MapComponent from './MapComponent';
 import LandingPage from './LandingPage';
-import { auth, googleProvider } from './firebase-config';
+import { auth, googleProvider, db } from './firebase-config';
 import { signInWithPopup, signOut, onAuthStateChanged, type User } from 'firebase/auth';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+
+// Component: Notification Toast
+function NotificationToast({ message, onClose }: { message: string, onClose: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 10000); // Auto close after 10s
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed top-20 right-4 left-4 md:left-auto md:w-96 bg-green-600 text-white px-4 py-3 rounded-lg shadow-xl z-[2000] animate-fade-in flex items-start gap-3 border-l-4 border-white">
+      <Bell className="shrink-0 mt-1" size={20} />
+      <div className="flex-1">
+        <h4 className="font-bold text-sm mb-1">แจ้งเตือน!</h4>
+        <p className="text-sm leading-tight">{message}</p>
+      </div>
+      <button onClick={onClose} className="hover:bg-green-700 p-1 rounded shrink-0"><X size={18} /></button>
+    </div>
+  );
+}
 
 // Wrapper for MapComponent to handle URL params
 function MapRoute({ user }: { user: User | null }) {
@@ -136,17 +156,49 @@ function Navbar({ user, isMobileMenuOpen, setIsMobileMenuOpen }: { user: User | 
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
-    return () => unsubscribe();
+    return () => unsubscribeAuth();
   }, []);
+
+  // Listen for notifications (When someone accepts help)
+  useEffect(() => {
+    if (!user) return;
+
+    const q = query(
+      collection(db, 'needs'),
+      where('userId', '==', user.uid)
+    );
+
+    const unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === 'modified') {
+          const data = change.doc.data();
+          if (data.status === 'ACCEPTED') {
+            const helperName = data.helperName || 'อาสาสมัคร';
+            const helperPhone = data.helperPhone || '-';
+            setNotification(`หมุดของคุณได้รับการช่วยเหลือแล้ว! โดย ${helperName} (โทร: ${helperPhone}) กรุณารอการติดต่อกลับ`);
+          }
+        }
+      });
+    });
+
+    return () => unsubscribeSnapshot();
+  }, [user]);
 
   return (
     <Router>
       <div className="app">
+        {notification && (
+          <NotificationToast 
+            message={notification} 
+            onClose={() => setNotification(null)} 
+          />
+        )}
         <Navbar user={user} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
         
         {/* Main Content Area */}
