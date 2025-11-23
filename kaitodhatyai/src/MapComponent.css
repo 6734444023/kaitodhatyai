@@ -1,0 +1,258 @@
+/* src/MapComponent.css */
+
+.map-page-container {
+  width: 100%;
+  height: 100%; /* Ensure full height */
+  flex: 1; /* Fill remaining space */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  padding: 0; /* Remove padding for full-screen map on mobile */
+  overflow: hidden;
+}
+
+.leaflet-map-container {
+  width: 100%;
+  height: 100%; 
+  flex: 1; /* Grow to fill container */
+  z-index: 1; 
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: flex-end; /* Bottom sheet on mobile */
+  justify-content: center;
+  z-index: 2000; /* Higher than map controls */
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: white;
+  padding: 1.5rem;
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  width: 100%;
+  max-width: 100%;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  animation: slideUp 0.3s ease-out;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .map-page-container {
+    padding: 1.5rem;
+  }
+
+  .leaflet-map-container {
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .modal-overlay {
+    align-items: center;
+  }
+
+  .modal-content {
+    border-radius: var(--radius);
+    width: 90%;
+    max-width: 450px;
+    animation: slideIn 0.3s ease-out;
+  }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    padding: 0.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.25rem;
+}
+
+.form-group input, .form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.875rem;
+}
+
+.input-inline {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Popup Styles */
+.pin-popup h4 {
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+.pin-popup strong {
+  font-weight: 500;
+}
+.pin-popup p {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+.pin-popup .accepted-info {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px dashed #e2e8f0;
+}
+.text-muted {
+    color: var(--text-muted);
+}
+.text-sm {
+    font-size: 0.875rem;
+}
+.font-semibold {
+    font-weight: 600;
+}
+.text-green-600 {
+    color: #10b981;
+}
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.inline { display: inline; }
+.mr-1 { margin-right: 0.25rem; }
+.mr-2 { margin-right: 0.5rem; }
+
+/* Custom Marker Label (DivIcon) */
+.custom-label-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+.marker-pin-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 4px 8px; /* Smaller padding for mobile */
+  border-radius: 20px;
+  border: 2px solid #ccc;
+  font-weight: bold;
+  font-size: 12px; /* Smaller font for mobile */
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .marker-pin-label {
+    padding: 6px 12px;
+    font-size: 14px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  }
+}
+
+.marker-pin-label:hover {
+  z-index: 1000;
+  transform: translate(-50%, -60%) scale(1.05);
+}
+
+.marker-pin-label.status-OPEN {
+  border-color: #ef4444;
+  color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.marker-pin-label.status-ACCEPTED {
+  border-color: #f97316;
+  color: #f97316;
+  background-color: #fff7ed;
+}
+
+.marker-pin-label.status-RESOLVED {
+  border-color: #22c55e;
+  color: #22c55e;
+  background-color: #f0fdf4;
+}
+
+.marker-pin-label.type-SHOP {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.marker-pin-label.shop-OPEN {
+  border-color: #2563eb;
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.marker-pin-label.shop-CLOSED {
+  border-color: #64748b;
+  color: #64748b;
+  background-color: #f1f5f9;
+  opacity: 0.8;
+}
