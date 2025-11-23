@@ -1,4 +1,4 @@
-import { MapPin, LifeBuoy, HandHeart, Waves, Navigation } from 'lucide-react';
+import { MapPin, LifeBuoy, HandHeart, Waves, Navigation, LogIn } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 function LandingPage() {
@@ -57,34 +57,43 @@ function LandingPage() {
       <section className="steps-section">
         <div className="container">
           <h2 className="section-title text-center animate-fade-in delay-300">
-            ขอความช่วยเหลือง่ายๆ ใน 3 ขั้นตอน
+            ขอความช่วยเหลือง่ายๆ ใน 4 ขั้นตอน
           </h2>
 
           <div className="steps-grid">
             {/* Step 1 */}
             <div className="step-card animate-fade-in delay-100">
-              <div className="step-icon-wrapper">
-                <MapPin size={40} className="step-icon" />
+              <div className="step-icon-wrapper color-4">
+                <LogIn size={40} className="step-icon" />
               </div>
-              <h3>1. ปักหมุดตำแหน่ง</h3>
-              <p>ระบุตำแหน่งของคุณบนแผนที่เพื่อให้เจ้าหน้าที่เข้าถึงได้แม่นยำ</p>
+              <h3>1. เข้าสู่ระบบ</h3>
+              <p>กดปุ่มเข้าสู่ระบบเพื่อยืนยันตัวตน (หากใช้มือถือให้กดเมนู 3 ขีดมุมขวาบน)</p>
             </div>
 
             {/* Step 2 */}
             <div className="step-card animate-fade-in delay-200">
-              <div className="step-icon-wrapper color-2">
-                <LifeBuoy size={40} className="step-icon" />
+              <div className="step-icon-wrapper">
+                <MapPin size={40} className="step-icon" />
               </div>
-              <h3>2. ระบุสิ่งที่ต้องการ</h3>
-              <p>แจ้งจำนวนคน อาหาร ยา หรือความช่วยเหลือทางการแพทย์ที่จำเป็น</p>
+              <h3>2. ปักหมุดตำแหน่ง</h3>
+              <p>ระบุตำแหน่งของคุณบนแผนที่เพื่อให้เจ้าหน้าที่เข้าถึงได้แม่นยำ</p>
             </div>
 
             {/* Step 3 */}
             <div className="step-card animate-fade-in delay-300">
+              <div className="step-icon-wrapper color-2">
+                <LifeBuoy size={40} className="step-icon" />
+              </div>
+              <h3>3. ระบุสิ่งที่ต้องการ</h3>
+              <p>แจ้งจำนวนคน อาหาร ยา หรือความช่วยเหลือทางการแพทย์ที่จำเป็น</p>
+            </div>
+
+            {/* Step 4 */}
+            <div className="step-card animate-fade-in delay-400">
               <div className="step-icon-wrapper color-3">
                 <HandHeart size={40} className="step-icon" />
               </div>
-              <h3>3. รับความช่วยเหลือ</h3>
+              <h3>4. รับความช่วยเหลือ</h3>
               <p>อาสาสมัครหรือทีมกู้ภัยที่อยู่ใกล้จะเห็นหมุดคุณและติดต่อกลับทันที</p>
             </div>
           </div>

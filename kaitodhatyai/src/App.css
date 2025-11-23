@@ -307,6 +307,16 @@
   border-color: rgba(22, 163, 74, 0.3);
 }
 
+/* New Step 4 Color */
+.step-icon-wrapper.color-4 {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.step-icon-wrapper.color-4::after {
+  border-color: rgba(147, 51, 234, 0.3);
+}
+
 .step-card h3 {
   font-size: 1.25rem;
   font-weight: 600;
@@ -604,6 +614,12 @@
     margin-bottom: 4rem;
   }
 
+  .footer .container {
+    flex-direction: row;
+    text-align: left;
+    justify-content: space-between;
+  }
+
   .hidden-mobile {
     display: flex !important;
   }
@@ -617,7 +633,7 @@
 .footer {
   background: #1e293b;
   color: white;
-  padding: 1.5rem 0;
+  padding: 2rem 0;
   margin-top: auto;
 }
 
@@ -851,6 +867,16 @@
 
 .step-icon-wrapper.color-3::after {
   border-color: rgba(22, 163, 74, 0.3);
+}
+
+/* New Step 4 Color */
+.step-icon-wrapper.color-4 {
+  background: #f3e8ff;
+  color: #9333ea;
+}
+
+.step-icon-wrapper.color-4::after {
+  border-color: rgba(147, 51, 234, 0.3);
 }
 
 .step-card h3 {
