@@ -342,69 +342,69 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = 'HELP' }) => {
         {/* แสดงหมุดทั้งหมด */}
         {pins.map(pin => (
           <Marker
-            key={pin.id}
-            position={[pin.lat, pin.lng]}
-            icon={getMarkerIcon(pin)}
-          >
-            <Popup>
-              <div className="pin-popup">
-                {pin.type === 'SHOP' ? (
-                    <>
-                        <h4><Store size={16} className="inline mr-1"/> {pin.shopName}</h4>
-                        <p className={`${pin.isOpen ? 'text-green-600' : 'text-red-600'} font-semibold`}>
-                            สถานะ: {pin.isOpen ? 'ร้านเปิด' : 'ร้านปิด'}
-                        </p>
-                        <p><strong>เจ้าของร้าน:</strong> {pin.name || 'ไม่ระบุ'}</p>
-                        
-                        {/* ปุ่มเปลี่ยนสถานะร้าน (เฉพาะเจ้าของ) */}
-                        {user && user.uid === pin.userId && (
-                             <button 
-                                onClick={() => handleToggleShopStatus(pin.id, pin.isOpen || false)}
-                                className={`btn btn-sm w-full mt-2 mb-2 ${pin.isOpen ? 'btn-outline-danger' : 'btn-primary'}`}
-                                style={pin.isOpen ? { color: 'red', borderColor: 'red' } : {}}
-                            >
-                                {pin.isOpen ? 'ปิดร้านชั่วคราว' : 'เปิดร้าน'}
-                            </button>
-                        )}
-                    </>
-                ) : (
-                    <>
-                        <h4><Home size={16} className="inline mr-1"/> สถานะ: {pin.status === 'OPEN' ? 'เปิดรับความช่วยเหลือ' : 'มีผู้รับแล้ว'}</h4>
-                        <p><strong>ผู้ขอความช่วยเหลือ:</strong> {pin.name || 'ไม่ระบุ'}</p>
-                        <p><strong>ความต้องการ:</strong> {pin.need}</p>
-                    </>
-                )}
-                
-                <p><strong>เบอร์โทร:</strong> <Phone size={14} className="inline mr-1"/>{pin.phone}</p>
-                
-                {/* ปุ่มลบหมุด (เฉพาะเจ้าของ) */}
-                {user && user.uid === pin.userId && (
-                    <button 
-                        onClick={() => handleDeletePin(pin.id)}
-                        className="btn btn-sm btn-outline-danger mt-2 w-full flex items-center justify-center gap-1"
-                        style={{ color: 'red', borderColor: 'red' }}
-                    >
-                        <Trash2 size={14} /> ลบหมุดของฉัน
-                    </button>
-                )}
+              key={pin.id}
+              position={[pin.lat, pin.lng]}
+              icon={getMarkerIcon(pin)}
+            >
+              <Popup>
+                <div className="pin-popup">
+                  {pin.type === 'SHOP' ? (
+                      <>
+                          <h4><Store size={16} className="inline mr-1"/> {pin.shopName}</h4>
+                          <p className={`${pin.isOpen ? 'text-green-600' : 'text-red-600'} font-semibold`}>
+                              สถานะ: {pin.isOpen ? 'ร้านเปิด' : 'ร้านปิด'}
+                          </p>
+                          <p><strong>เจ้าของร้าน:</strong> {pin.name || 'ไม่ระบุ'}</p>
+                          
+                          {/* ปุ่มเปลี่ยนสถานะร้าน (เฉพาะเจ้าของ) */}
+                          {user && user.uid === pin.userId && (
+                              <button 
+                                  onClick={() => handleToggleShopStatus(pin.id, pin.isOpen || false)}
+                                  className={`btn btn-sm w-full mt-2 mb-2 ${pin.isOpen ? 'btn-outline-danger' : 'btn-primary'}`}
+                                  style={pin.isOpen ? { color: 'red', borderColor: 'red' } : {}}
+                              >
+                                  {pin.isOpen ? 'ปิดร้านชั่วคราว' : 'เปิดร้าน'}
+                              </button>
+                          )}
+                      </>
+                  ) : (
+                      <>
+                          <h4><Home size={16} className="inline mr-1"/> สถานะ: {pin.status === 'OPEN' ? 'เปิดรับความช่วยเหลือ' : 'มีผู้รับแล้ว'}</h4>
+                          <p><strong>ผู้ขอความช่วยเหลือ:</strong> {pin.name || 'ไม่ระบุ'}</p>
+                          <p><strong>ความต้องการ:</strong> {pin.need}</p>
+                      </>
+                  )}
+                  
+                  <p><strong>เบอร์โทร:</strong> <Phone size={14} className="inline mr-1"/>{pin.phone}</p>
+                  
+                  {/* ปุ่มลบหมุด (เฉพาะเจ้าของ) */}
+                  {user && user.uid === pin.userId && (
+                      <button 
+                          onClick={() => handleDeletePin(pin.id)}
+                          className="btn btn-sm btn-outline-danger mt-2 w-full flex items-center justify-center gap-1"
+                          style={{ color: 'red', borderColor: 'red' }}
+                      >
+                          <Trash2 size={14} /> ลบหมุดของฉัน
+                      </button>
+                  )}
 
-                {/* ฟอร์มช่วยเหลือ (เฉพาะหมุด HELP และไม่ใช่เจ้าของ) */}
-                {pin.type !== 'SHOP' && pin.status === 'OPEN' && (!user || user.uid !== pin.userId) && (
-                    <AcceptHelpForm pinId={pin.id} onAccept={handleAcceptHelp} user={user || null} />
-                )}
+                  {/* ฟอร์มช่วยเหลือ (เฉพาะหมุด HELP และไม่ใช่เจ้าของ) */}
+                  {pin.type !== 'SHOP' && pin.status === 'OPEN' && (!user || user.uid !== pin.userId) && (
+                      <AcceptHelpForm pinId={pin.id} onAccept={handleAcceptHelp} user={user || null} />
+                  )}
 
-                {pin.status === 'ACCEPTED' && (pin.helperPhone || pin.helperName) && (
-                    <div className="accepted-info">
-                        <p className="text-sm text-green-600 font-semibold">
-                           <UserIcon size={14} className="inline mr-1"/> มีผู้รับแล้ว
-                        </p>
-                        {pin.helperName && <p className="text-xs"><strong>ชื่อผู้ช่วย:</strong> {pin.helperName}</p>}
-                        {pin.helperPhone && <p className="text-xs"><strong>เบอร์โทร:</strong> {pin.helperPhone}</p>}
-                        <p className="text-xs text-muted mt-1">กรุณาโทรตรวจสอบสถานะก่อนเดินทาง</p>
-                    </div>
-                )}
-              </div>
-            </Popup>
+                  {pin.status === 'ACCEPTED' && (pin.helperPhone || pin.helperName) && (
+                      <div className="accepted-info">
+                          <p className="text-sm text-green-600 font-semibold">
+                            <UserIcon size={14} className="inline mr-1"/> มีผู้รับแล้ว
+                          </p>
+                          {pin.helperName && <p className="text-xs"><strong>ชื่อผู้ช่วย:</strong> {pin.helperName}</p>}
+                          {pin.helperPhone && <p className="text-xs"><strong>เบอร์โทร:</strong> {pin.helperPhone}</p>}
+                          <p className="text-xs text-muted mt-1">กรุณาโทรตรวจสอบสถานะก่อนเดินทาง</p>
+                      </div>
+                  )}
+                </div>
+              </Popup>
           </Marker>
         ))}
       </MapContainer>

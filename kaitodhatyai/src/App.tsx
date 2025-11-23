@@ -193,10 +193,24 @@ function App() {
 
             // System Notification (Chrome/Mobile)
             if (Notification.permission === 'granted') {
-              new Notification('มีผู้ช่วยเหลือแล้ว!', {
-                body: message,
-                icon: '/vite.svg' // Default icon
-              });
+              // Try to use Service Worker registration for better mobile support
+              if ('serviceWorker' in navigator && navigator.serviceWorker.ready) {
+                navigator.serviceWorker.ready.then(registration => {
+                  registration.showNotification('มีผู้ช่วยเหลือแล้ว!', {
+                    body: message,
+                    icon: '/pwa-192x192.png',
+                    tag: 'help-accepted',
+                    // @ts-ignore - vibrate is valid in ServiceWorker registration
+                    vibrate: [200, 100, 200]
+                  });
+                });
+              } else {
+                // Fallback to standard Notification API
+                new Notification('มีผู้ช่วยเหลือแล้ว!', {
+                  body: message,
+                  icon: '/pwa-192x192.png'
+                });
+              }
             }
           }
         }
