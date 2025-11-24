@@ -4,7 +4,7 @@ import L from 'leaflet';
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { db } from './firebase-config'; // นำเข้า db ที่ตั้งค่าไว้
-import { MapPin, X, Phone, User as UserIcon, Home, Store, Trash2 } from 'lucide-react';
+import { MapPin, X, Phone, User as UserIcon, Home, Store, Trash2, CheckCircle } from 'lucide-react';
 import './MapComponent.css';
 import type { User } from 'firebase/auth';
 
@@ -251,7 +251,8 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = 'HELP' }) => {
       } as NeedPin)); 
       
       // กรองเฉพาะหมุดที่ยัง OPEN หรือ ACCEPTED และมีพิกัดถูกต้อง เพื่อแสดงบนแผนที่
-      setPins(fetchedPins.filter(p => p.status !== 'RESOLVED' && typeof p.lat === 'number' && typeof p.lng === 'number'));
+      // แก้ไข: แสดงหมุด RESOLVED ด้วย เพื่อให้เห็นสถานะว่าช่วยเหลือแล้ว
+      setPins(fetchedPins.filter(p => typeof p.lat === 'number' && typeof p.lng === 'number'));
     });
 
     // Cleanup function
@@ -391,6 +392,16 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = 'HELP' }) => {
                   {/* ฟอร์มช่วยเหลือ (เฉพาะหมุด HELP และไม่ใช่เจ้าของ) */}
                   {pin.type !== 'SHOP' && pin.status === 'OPEN' && (!user || user.uid !== pin.userId) && (
                       <AcceptHelpForm pinId={pin.id} onAccept={handleAcceptHelp} user={user || null} />
+                  )}
+
+                  {pin.status === 'RESOLVED' && (
+                      <div className="accepted-info">
+                          <p className="text-sm text-green-600 font-semibold">
+                            <CheckCircle size={14} className="inline mr-1"/> ช่วยเหลือเรียบร้อยแล้ว
+                          </p>
+                          {pin.helperName && <p className="text-xs"><strong>ผู้ช่วย:</strong> {pin.helperName}</p>}
+                          <p className="text-xs text-muted mt-1">เคสนี้ปิดงานแล้ว</p>
+                      </div>
                   )}
 
                   {pin.status === 'ACCEPTED' && (pin.helperPhone || pin.helperName) && (

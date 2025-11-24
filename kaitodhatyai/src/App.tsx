@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useSe
 import './App.css';
 import MapComponent from './MapComponent';
 import LandingPage from './LandingPage';
+import AdminDashboard from './AdminDashboard';
 import { auth, googleProvider, db, messaging, getToken, onMessage } from './firebase-config';
 import { signInWithPopup, signOut, onAuthStateChanged, type User } from 'firebase/auth';
 import { collection, query, where, onSnapshot, doc, setDoc } from 'firebase/firestore';
@@ -265,6 +266,7 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/map" element={<MapRoute user={user} />} />
+            <Route path="/admin" element={<AdminDashboard />} />
           </Routes>
         </main>
       </div>
