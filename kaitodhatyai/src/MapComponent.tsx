@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useState, useEffect } from 'react';
@@ -212,6 +212,19 @@ const ReportModal: React.FC<ReportModalProps> = ({ onClose, latLng, mode, user }
 
 
 // =========================================================================
+// Component: Map Controller (Fly to specific location)
+// =========================================================================
+const MapController = ({ center }: { center: L.LatLngExpression | null }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.flyTo(center, 16);
+    }
+  }, [center, map]);
+  return null;
+};
+
+// =========================================================================
 // Component: Map Click Handler
 // =========================================================================
 interface MapClickHandlerProps {
@@ -241,6 +254,33 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = 'HELP' }) => {
   const [pins, setPins] = useState<NeedPin[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [clickedLatLng, setClickedLatLng] = useState<L.LatLng | null>(null);
+
+  // Search State
+  const [searchText, setSearchText] = useState('');
+  const [mapFlyTo, setMapFlyTo] = useState<L.LatLngExpression | null>(null);
+
+  const handleSearch = () => {
+    // รองรับรูปแบบ "lat, lng" หรือ "lat lng"
+    const parts = searchText.trim().split(/[\s,]+/);
+    
+    if (parts.length < 2) {
+        alert('กรุณากรอกพิกัดในรูปแบบ "ละติจูด, ลองจิจูด" (เช่น 7.0050, 100.4800)');
+        return;
+    }
+
+    const lat = parseFloat(parts[0]);
+    const lng = parseFloat(parts[1]);
+
+    if (isNaN(lat) || isNaN(lng)) {
+        alert('กรุณากรอกพิกัดให้ถูกต้อง (ตัวเลข)');
+        return;
+    }
+
+    const newLatLng = new L.LatLng(lat, lng);
+    setMapFlyTo([lat, lng]); // Move map
+    setClickedLatLng(newLatLng); // Set point for modal
+    setIsModalOpen(true); // Open modal
+  };
 
   // 1. ดึงข้อมูลหมุดแบบ Real-time จาก Firestore
   useEffect(() => {
@@ -318,12 +358,24 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = 'HELP' }) => {
   return (
     <div className="map-page-container">
       
-      {/* Mode Indicator */}
-      <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000, background: 'white', padding: '5px 10px', borderRadius: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.2)' }}>
-          <span style={{ fontWeight: 'bold', color: mode === 'HELP' ? 'red' : 'blue' }}>
-              โหมด: {mode === 'HELP' ? 'ขอความช่วยเหลือ' : 'ร้านค้าปักหมุด'}
-          </span>
+      {/* Search Box */}
+      <div style={{ position: 'absolute', top: 10, left: 50, zIndex: 1000, background: 'white', padding: '8px', borderRadius: '5px', boxShadow: '0 2px 5px rgba(0,0,0,0.2)', display: 'flex', gap: '5px', alignItems: 'center' }}>
+          <input 
+              type="text" 
+              placeholder="ค้นหาจากพิกัด (เช่น 7.005, 100.480)" 
+              value={searchText} 
+              onChange={(e) => setSearchText(e.target.value)} 
+              style={{ width: '220px', padding: '5px', border: '1px solid #ccc', borderRadius: '3px' }}
+          />
+          <button 
+              onClick={handleSearch}
+              style={{ background: '#007bff', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '3px', cursor: 'pointer' }}
+          >
+              ค้นหา
+          </button>
       </div>
+
+     
 
       <MapContainer
         center={HATYAI_CENTER}
@@ -336,6 +388,9 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = 'HELP' }) => {
           attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        {/* Controller สำหรับเลื่อนแผนที่ */}
+        <MapController center={mapFlyTo} />
 
         {/* Component สำหรับดักการคลิกบนแผนที่ */}
         <MapClickHandler onMapClick={handleMapClick} />
