@@ -1,11 +1,48 @@
 import { MapPin, LifeBuoy, HandHeart, Waves, Navigation, LogIn, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from './firebase-config';
 
 function LandingPage() {
   const navigate = useNavigate();
+  const [waitingCount, setWaitingCount] = useState(0);
+  const [helpedCount, setHelpedCount] = useState(0);
+
+  useEffect(() => {
+    const q = query(collection(db, 'needs'), where('type', '==', 'HELP'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      let waiting = 0;
+      let helped = 0;
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.status === 'OPEN') waiting++;
+        if (data.status === 'ACCEPTED' || data.status === 'RESOLVED') helped++;
+      });
+      setWaitingCount(waiting);
+      setHelpedCount(helped);
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div className="landing-page-container" style={{ height: '100%', overflowY: 'auto' }}>
+      
+      {/* Stats Banner */}
+      <div className="bg-white py-6 border-b border-gray-100 shadow-sm relative z-20">
+         <div className="container flex justify-center gap-8 md:gap-16 text-center">
+            <div className="animate-fade-in">
+               <h3 className="text-4xl font-bold text-red-500 mb-1">{waitingCount}</h3>
+               <p className="text-sm text-gray-500 font-medium">รอความช่วยเหลือ</p>
+            </div>
+            <div className="w-px bg-gray-200 h-16"></div>
+            <div className="animate-fade-in delay-100">
+               <h3 className="text-4xl font-bold text-green-500 mb-1">{helpedCount}</h3>
+               <p className="text-sm text-gray-500 font-medium">ช่วยเหลือแล้ว</p>
+            </div>
+         </div>
+       </div>
+
       {/* Hero Section */}
       <header className="hero">
         <div className="container flex items-center justify-between hero-content">
