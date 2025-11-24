@@ -29,25 +29,17 @@ function LandingPage() {
     <div className="landing-page-container" style={{ height: '100%', overflowY: 'auto' }}>
       
       {/* Stats Banner */}
-      <div className="bg-white py-8 border-b border-gray-100 shadow-sm relative z-20">
-         <div className="container flex justify-center gap-12 md:gap-24 text-center">
-            
-            {/* Waiting Circle */}
-            <div className="flex flex-col items-center animate-fade-in">
-               <div className="w-32 h-32 rounded-full bg-red-500 flex items-center justify-center shadow-lg mb-3 transform hover:scale-105 transition-transform duration-300 border-4 border-red-100">
-                  <h3 className="text-5xl font-bold text-white">{waitingCount}</h3>
-               </div>
-               <p className="text-lg text-gray-700 font-bold">รอความช่วยเหลือ</p>
+      <div className="bg-white py-6 border-b border-gray-100 shadow-sm relative z-20">
+         <div className="container flex justify-center gap-8 md:gap-16 text-center">
+            <div className="animate-fade-in">
+               <h3 className="text-4xl font-bold text-red-500 mb-1">{waitingCount}</h3>
+               <p className="text-sm text-gray-500 font-medium">รอความช่วยเหลือ</p>
             </div>
-
-            {/* Helped Circle */}
-            <div className="flex flex-col items-center animate-fade-in delay-100">
-               <div className="w-32 h-32 rounded-full bg-green-500 flex items-center justify-center shadow-lg mb-3 transform hover:scale-105 transition-transform duration-300 border-4 border-green-100">
-                  <h3 className="text-5xl font-bold text-white">{helpedCount}</h3>
-               </div>
-               <p className="text-lg text-gray-700 font-bold">ช่วยเหลือแล้ว</p>
+            <div className="w-px bg-gray-200 h-16"></div>
+            <div className="animate-fade-in delay-100">
+               <h3 className="text-4xl font-bold text-green-500 mb-1">{helpedCount}</h3>
+               <p className="text-sm text-gray-500 font-medium">ช่วยเหลือแล้ว</p>
             </div>
-
          </div>
        </div>
 
