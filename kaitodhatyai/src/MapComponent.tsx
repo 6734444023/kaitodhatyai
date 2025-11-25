@@ -461,6 +461,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = "HELP" }) => {
   // 6. Logic สำหรับเปลี่ยนสถานะหมุดว่าได้รับความช่วยเหลือแล้ว (เฉพาะเจ้าของ)
   const handleMarkAsHelped = async (pinId: string) => {
     if (window.confirm("ยืนยันว่าผู้ประสบภัยรายนี้ได้รับความช่วยเหลือแล้ว?")) {
+      console.log(pinId);
       try {
         await updateDoc(doc(db, "needs", pinId), {
           status: "RESOLVED",
@@ -645,15 +646,17 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = "HELP" }) => {
                     </button>
                   )}
 
-                  {user && user.uid === pin.userId && (
-                    <button
-                      onClick={() => handleMarkAsHelped(pin.id)}
-                      className="btn btn-sm btn-outline-success mt-2 w-full flex items-center justify-center gap-1"
-                      style={{ color: "green", borderColor: "green" }}
-                    >
-                      <CheckCircle size={14} /> ได้รับความช่วยเหลือแล้ว
-                    </button>
-                  )}
+                  {user &&
+                    user.uid === pin.userId &&
+                    pin.status === "ACCEPTED" && (
+                      <button
+                        onClick={() => handleMarkAsHelped(pin.id)}
+                        className="btn btn-sm btn-outline-success mt-2 w-full flex items-center justify-center gap-1"
+                        style={{ color: "green", borderColor: "green" }}
+                      >
+                        <CheckCircle size={14} /> ได้รับความช่วยเหลือแล้ว
+                      </button>
+                    )}
 
                   {/* ฟอร์มช่วยเหลือ (เฉพาะหมุด HELP และไม่ใช่เจ้าของ) */}
                   {pin.type !== "SHOP" &&
