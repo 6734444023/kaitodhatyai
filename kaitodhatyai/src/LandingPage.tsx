@@ -1,7 +1,7 @@
 import { MapPin, LifeBuoy, HandHeart, Waves, Navigation, LogIn, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, getCountFromServer } from 'firebase/firestore';
 import { db } from './firebase-config';
 
 function LandingPage() {
@@ -10,19 +10,41 @@ function LandingPage() {
   const [helpedCount, setHelpedCount] = useState(0);
 
   useEffect(() => {
-    const q = query(collection(db, 'needs'), where('type', '==', 'HELP'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      let waiting = 0;
-      let helped = 0;
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        if (data.status === 'OPEN') waiting++;
-        if (data.status === 'ACCEPTED' || data.status === 'RESOLVED') helped++;
-      });
-      setWaitingCount(waiting);
-      setHelpedCount(helped);
-    });
-    return () => unsubscribe();
+    const fetchCounts = async () => {
+      try {
+        // ใช้ getCountFromServer แทน onSnapshot เพื่อลดการดึงข้อมูลเอกสารทั้งหมด
+        // Query 1: รอความช่วยเหลือ (OPEN)
+        const waitingQuery = query(
+          collection(db, 'needs'), 
+          where('type', '==', 'HELP'), 
+          where('status', '==', 'OPEN')
+        );
+        
+        // Query 2: ช่วยเหลือแล้ว (ACCEPTED หรือ RESOLVED)
+        const helpedQuery = query(
+          collection(db, 'needs'), 
+          where('type', '==', 'HELP'), 
+          where('status', 'in', ['ACCEPTED', 'RESOLVED'])
+        );
+
+        // ดึงข้อมูลแบบ Parallel
+        const [waitingSnap, helpedSnap] = await Promise.all([
+          getCountFromServer(waitingQuery),
+          getCountFromServer(helpedQuery)
+        ]);
+
+        setWaitingCount(waitingSnap.data().count);
+        setHelpedCount(helpedSnap.data().count);
+      } catch (error) {
+        console.error("Error fetching counts:", error);
+      }
+    };
+
+    fetchCounts();
+
+    // ตั้งเวลาดึงข้อมูลใหม่ทุก 30 วินาที (Polling) แทน Realtime
+    const interval = setInterval(fetchCounts, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
