@@ -1,0 +1,62 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ฟังก์ชันช่วยตรวจสอบว่าผู้ใช้เข้าสู่ระบบแล้ว
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // =========================================================================
+    // กฎสำหรับ Collection: needs (หมุดขอความช่วยเหลือ/ร้านค้า)
+    // =========================================================================
+    match /needs/{needId} {
+      
+      // การอ่าน: อนุญาตให้ทุกคนอ่านได้ (เพื่อให้แผนที่แสดงผล)
+      allow read: if true;
+
+      // การสร้าง (ปักหมุด): 
+      // - ต้องเข้าสู่ระบบแล้ว
+      // - ต้องกำหนด userId ให้ตรงกับผู้ใช้ที่ล็อกอิน
+      // - กำหนด type และ status เริ่มต้นให้ถูกต้อง
+      allow create: if isAuthenticated() && 
+                        request.resource.data.userId == request.auth.uid &&
+                        request.resource.data.type in ['HELP', 'SHOP'] &&
+                        request.resource.data.status == 'OPEN';
+      
+      // การแก้ไข (อัปเดต):
+      // ปรับปรุง: ย้าย isAuthenticated() เข้าไปในเงื่อนไขย่อย เพื่อให้ Guest สามารถกดรับงานได้
+      allow update: if (
+        
+        // 1. เจ้าของหมุดสามารถแก้ไข/เปลี่ยนสถานะร้านค้าได้ (ต้อง Login)
+        (isAuthenticated() && resource.data.userId == request.auth.uid)
+        
+        // 2. อาสาสมัครสามารถกดรับความช่วยเหลือได้ (เปลี่ยน status: OPEN -> ACCEPTED)
+        // **ไม่ต้อง Login ก็ได้** เพื่อให้คนทั่วไปช่วยเหลือได้ง่ายขึ้น (ตาม UI ที่มีช่องกรอกชื่อ)
+        || (resource.data.type == 'HELP' &&
+            resource.data.status == 'OPEN' && 
+            request.resource.data.status == 'ACCEPTED' &&
+            // อนุญาตให้อัปเดตได้เฉพาะ status, helperPhone, helperName, timestamp
+            request.resource.data.keys().hasAll(['status', 'helperPhone', 'helperName', 'timestamp']))
+            
+        // 3. การทำเครื่องหมายว่าช่วยเหลือแล้ว (RESOLVED)
+        // ต้อง Login (สมมติว่าเป็น Admin หรือเจ้าหน้าที่)
+        || (isAuthenticated() && request.resource.data.status == 'RESOLVED' && resource.data.status != 'RESOLVED')
+      );
+      
+      // การลบ: อนุญาตเฉพาะเจ้าของหมุดเท่านั้นที่ลบได้
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+    
+    // =========================================================================
+    // กฎสำหรับ Collection: users (FCM Tokens)
+    // =========================================================================
+    match /users/{userId} {
+      // การเขียน/อัปเดต: อนุญาตให้ผู้ใช้เขียนข้อมูลได้เฉพาะใน Document ของตัวเองเท่านั้น
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+      
+      // การอ่าน: ไม่อนุญาตให้ใครอ่านข้อมูลของผู้ใช้อื่นได้
+      allow read: if false; 
+    }
+  }
+}
