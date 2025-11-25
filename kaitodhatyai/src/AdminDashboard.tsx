@@ -212,7 +212,7 @@ const AdminDashboard: React.FC = () => {
                 ไม่มีรหัสผ่าน? ติดต่อขอรหัสได้ที่
               </p>
               <a
-                href="https://www.facebook.com/kluay.game"
+                href="https://www.facebook.com/profile.php?id=61584432652391"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-outline flex items-center gap-2 text-blue-600 border-blue-600 hover:bg-blue-50"
