@@ -1,4 +1,4 @@
-.filters-row {
+.filters-row-2 {
   display: flex;
   gap: 12px;
   align-items: flex-end;
@@ -64,7 +64,7 @@
 
 /* small screens */
 @media (max-width: 640px) {
-  .filters-row {
+  .filters-row-2 {
     flex-direction: column;
     align-items: stretch;
   }

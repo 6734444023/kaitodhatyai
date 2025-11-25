@@ -17,7 +17,7 @@ export default function RequestFilters({
   }, [viewType, status, onChange]);
 
   return (
-    <div className="filters-row">
+    <div className="filters-row-2">
       <div className="filter-group">
         <label htmlFor="viewType">แสดงผล</label>
         <select
