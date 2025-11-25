@@ -81,7 +81,6 @@ const AdminDashboard: React.FC = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(ADMIN_PASSWORD.includes(password));
     if (!!password && ADMIN_PASSWORD.includes(password))
       setIsAuthenticated(true);
     else alert("รหัสผ่านไม่ถูกต้อง");
