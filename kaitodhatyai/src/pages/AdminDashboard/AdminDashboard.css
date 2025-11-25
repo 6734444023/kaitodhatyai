@@ -4,6 +4,7 @@
   padding: 1rem;
   background-color: var(--background);
   min-height: 100vh;
+  width: 100%;
 }
 
 .admin-login {
@@ -213,7 +214,8 @@
     flex-direction: column; /* Stack action buttons */
   }
 
-  .btn-map, .btn-resolve {
+  .btn-map,
+  .btn-resolve {
     width: 100%;
     justify-content: center;
   }
@@ -221,5 +223,98 @@
   .admin-login input {
     width: 100%;
     max-width: 300px;
+  }
+}
+
+/* Container */
+.search-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #fafafa;
+  border: 1px solid #eaeaea;
+  border-radius: 10px;
+}
+
+/* Each field wrapper */
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Label styling */
+.search-field label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+}
+
+/* Input styling */
+.search-field input {
+  padding: 10px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: 0.2s border, 0.2s box-shadow;
+  outline: none;
+  min-width: 300px;
+
+  @media (max-width: 600px) {
+    min-width: 100%;
+  }
+}
+
+/* Input focus */
+.search-field input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.25);
+}
+
+/* Buttons */
+.search-btn,
+.clear-btn {
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s opacity;
+}
+
+/* Search button (primary) */
+.search-btn {
+  background: #4a90e2;
+  color: white;
+}
+
+.search-btn:hover {
+  opacity: 0.9;
+}
+
+/* Clear button (secondary) */
+.clear-btn {
+  background: #f2f2f2;
+  color: #444;
+}
+
+.clear-btn:hover {
+  opacity: 0.85;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .search-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-btn,
+  .clear-btn {
+    width: 100%;
   }
 }
