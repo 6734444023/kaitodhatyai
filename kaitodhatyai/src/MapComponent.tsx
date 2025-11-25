@@ -325,6 +325,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = 'HELP' }) => {
             status: 'ACCEPTED',
             helperPhone: helperPhone,
             helperName: helperName, // บันทึกชื่อผู้ช่วยเหลือ
+            timestamp: Timestamp.now(),
         });
         alert('รับความช่วยเหลือเรียบร้อย! กรุณาโทรติดต่อผู้ประสบภัยทันที');
         
