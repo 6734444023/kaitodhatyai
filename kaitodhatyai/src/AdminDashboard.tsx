@@ -1,150 +1,201 @@
-import React, { useState, useEffect } from "react";
+// AdminDashboard.tsx  (WITH PAGINATION + PAGE LIMIT)
+
 import {
   collection,
-  onSnapshot,
   doc,
-  updateDoc,
+  onSnapshot,
   query,
-  where,
   Timestamp,
+  updateDoc,
+  where,
 } from "firebase/firestore";
-import { db } from "./firebase-config";
-import {
-  Phone,
-  CheckCircle,
-  Clock,
-  User,
-  Navigation,
-  Facebook,
-} from "lucide-react";
+import { Clock, Facebook, Navigation, Phone, Search, User } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./AdminDashboard.css";
 import { ADMIN_PASSWORD } from "./config";
+import { db } from "./firebase-config";
+import PaginationControl from "./pages/AdminDashboard/components/PaginationControl";
 
 interface NeedPin {
   id: string;
-  lat: number;
-  lng: number;
+  lat?: number;
+  lng?: number;
   type: "HELP" | "SHOP";
   need?: string;
-  shopName?: string;
-  isOpen?: boolean;
-  phone: string;
+  phone?: string;
   status: "OPEN" | "ACCEPTED" | "RESOLVED";
   helperPhone?: string;
   helperName?: string;
-  timestamp: Timestamp;
+  timestamp?: Timestamp;
   name?: string;
   userId?: string;
 }
 
+type SortBy = "newest" | "oldest" | "name-asc" | "name-desc";
+
 const AdminDashboard: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
+
   const [needs, setNeeds] = useState<NeedPin[]>([]);
-  const [activeTab, setActiveTab] = useState<"waiting" | "helped">("waiting");
+  const [activeTab, setActiveTab] = useState<NeedPin["status"]>("OPEN");
 
-  // Hardcoded password for simplicity as requested
-  const ADMIN_CODE = "admin1234";
+  // SEARCH + SORT
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [sortBy, setSortBy] = useState<SortBy>("newest");
+  const searchRef = useRef<number | null>(null);
 
+  // PAGINATION
+  const [pageSize, setPageSize] = useState(100); // default 100
+  const [page, setPage] = useState(1);
+
+  // debounce search 300ms
+  useEffect(() => {
+    if (searchRef.current) clearTimeout(searchRef.current);
+    searchRef.current = window.setTimeout(() => {
+      setDebouncedSearch(searchTerm.trim());
+      setPage(1); // reset page on search
+    }, 300);
+  }, [searchTerm]);
+
+  // Load data
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    // Query for HELP pins only
-    // แก้ไข: เอา orderBy ออกจาก Query เพื่อเลี่ยงปัญหา Index และมา Sort ใน JS แทน
     const q = query(collection(db, "needs"), where("type", "==", "HELP"));
+    const unsub = onSnapshot(q, (snapshot) => {
+      const list: NeedPin[] = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...(d.data() as Omit<NeedPin, "id">),
+      }));
+      // default newest sort
+      list.sort(
+        (a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)
+      );
+      setNeeds(list);
+    });
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const fetchedNeeds = snapshot.docs.map(
-          (doc) =>
-            ({
-              id: doc.id,
-              ...doc.data(),
-            } as NeedPin)
-        );
-
-        // Sort client-side (Newest first)
-        fetchedNeeds.sort((a, b) => {
-          const timeA = a.timestamp?.seconds || 0;
-          const timeB = b.timestamp?.seconds || 0;
-          return timeB - timeA;
-        });
-
-        setNeeds(fetchedNeeds);
-      },
-      (error) => {
-        console.error("Error fetching needs:", error);
-        alert(
-          "เกิดข้อผิดพลาดในการดึงข้อมูล (ดู Console เพื่อตรวจสอบรายละเอียด)"
-        );
-      }
-    );
-
-    return () => unsubscribe();
+    return () => unsub();
   }, [isAuthenticated]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (ADMIN_PASSWORD.includes(password)) {
+    console.log(ADMIN_PASSWORD.includes(password));
+    if (!!password && ADMIN_PASSWORD.includes(password))
       setIsAuthenticated(true);
-    } else {
-      alert("รหัสผ่านไม่ถูกต้อง");
+    else alert("รหัสผ่านไม่ถูกต้อง");
+  };
+
+  const formatTime = (ts?: Timestamp) => {
+    if (!ts) return "-";
+    try {
+      return ts.toDate().toLocaleString("th-TH", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch {
+      return "-";
     }
   };
 
-  const handleMarkAsHelped = async (id: string) => {
-    if (window.confirm("ยืนยันว่าผู้ประสบภัยรายนี้ได้รับความช่วยเหลือแล้ว?")) {
-      try {
-        await updateDoc(doc(db, "needs", id), {
-          status: "RESOLVED",
-        });
-      } catch (error) {
-        console.error("Error updating status:", error);
-        alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
-      }
-    }
-  };
-
-  const openGoogleMaps = (lat: number, lng: number) => {
+  const openGoogleMaps = (lat?: number, lng?: number) => {
+    if (!lat || !lng) return alert("ตำแหน่งไม่พร้อมใช้งาน");
     window.open(
-      `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`,
-      "_blank"
+      `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`
     );
   };
 
-  const formatTime = (timestamp: Timestamp) => {
-    if (!timestamp) return "";
-    const date = timestamp.toDate();
-    return date.toLocaleString("th-TH", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+  const handleAccept = async (id: string) => {
+    const helperName = window.prompt("ชื่อผู้ช่วยเหลือ:");
+    if (helperName === null) return;
+    const helperPhone = window.prompt("เบอร์ผู้ช่วยเหลือ:");
+    if (helperPhone === null) return;
+
+    const ok = window.confirm("ยืนยันรับเรื่อง?");
+    if (!ok) return;
+
+    await updateDoc(doc(db, "needs", id), {
+      status: "ACCEPTED",
+      helperName,
+      helperPhone,
     });
   };
 
-  // Filter data based on tabs
-  const waitingList = needs.filter((n) => n.status === "OPEN");
-  const helpedList = needs.filter(
-    (n) => n.status === "ACCEPTED" || n.status === "RESOLVED"
-  );
+  const handleResolve = async (id: string) => {
+    const ok = window.confirm("ยืนยันว่าช่วยเหลือแล้ว?");
+    if (!ok) return;
 
-  const currentList = activeTab === "waiting" ? waitingList : helpedList;
+    await updateDoc(doc(db, "needs", id), { status: "RESOLVED" });
+  };
+
+  // filter + sort (before pagination)
+  const filtered = useMemo(() => {
+    const term = debouncedSearch.toLowerCase();
+    let list = needs.filter((n) => n.status === activeTab);
+
+    if (term) {
+      list = list.filter((n) => {
+        const name = (n.name || "").toLowerCase();
+        const phone = (n.phone || "").toLowerCase();
+        const need = (n.need || "").toLowerCase();
+        return (
+          name.includes(term) || phone.includes(term) || need.includes(term)
+        );
+      });
+    }
+
+    list = [...list]; // clone before sorting
+
+    switch (sortBy) {
+      case "newest":
+        list.sort(
+          (a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)
+        );
+        break;
+      case "oldest":
+        list.sort(
+          (a, b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0)
+        );
+        break;
+      case "name-asc":
+        list.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        break;
+      case "name-desc":
+        list.sort((a, b) => (b.name || "").localeCompare(a.name || ""));
+        break;
+    }
+    return list;
+  }, [needs, activeTab, debouncedSearch, sortBy]);
+
+  // pagination calculations
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const pageStart = (page - 1) * pageSize;
+  const pageEnd = pageStart + pageSize;
+  const paginated = filtered.slice(pageStart, pageEnd);
+
+  const counts = {
+    open: needs.filter((n) => n.status === "OPEN").length,
+    accepted: needs.filter((n) => n.status === "ACCEPTED").length,
+    resolved: needs.filter((n) => n.status === "RESOLVED").length,
+  };
 
   if (!isAuthenticated) {
     return (
       <div className="admin-container">
         <div className="admin-login">
-          <h1 className="text-2xl font-bold mb-4">Admin Dashboard</h1>
+          <h1>Admin Dashboard</h1>
           <form
             onSubmit={handleLogin}
             style={{ gap: "4px", display: "flex", flexDirection: "column" }}
           >
             <input
               type="password"
-              placeholder="กรอกรหัสผ่านเพื่อเข้าสู่ระบบ"
+              placeholder="กรอกรหัสผ่าน"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -178,66 +229,151 @@ const AdminDashboard: React.FC = () => {
   return (
     <div className="admin-container">
       <div className="dashboard-header">
-        <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-        <p className="text-muted">จัดการข้อมูลผู้ประสบภัยน้ำท่วมหาดใหญ่</p>
+        <h1>Admin Dashboard</h1>
+        <p className="text-muted">
+          ระบบจัดการผู้ประสบภัย — พร้อมค้นหา/กรอง/แบ่งหน้า
+        </p>
       </div>
 
+      {/* Stats */}
       <div className="dashboard-stats">
         <div className="stat-card">
-          <div className="stat-number">{waitingList.length}</div>
+          <div className="stat-number">{counts.open}</div>
           <div className="stat-label">รอความช่วยเหลือ</div>
         </div>
         <div className="stat-card">
-          <div className="stat-number" style={{ color: "#10b981" }}>
-            {helpedList.length}
+          <div className="stat-number" style={{ color: "#f59e0b" }}>
+            {counts.accepted}
           </div>
-          <div className="stat-label">ได้รับความช่วยเหลือแล้ว</div>
+          <div className="stat-label">กำลังช่วยเหลือ</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number" style={{ color: "#10b981" }}>
+            {counts.resolved}
+          </div>
+          <div className="stat-label">ช่วยเหลือแล้ว</div>
         </div>
       </div>
 
+      {/* Tabs */}
       <div className="tabs">
         <button
-          className={`tab-btn ${activeTab === "waiting" ? "active" : ""}`}
-          onClick={() => setActiveTab("waiting")}
+          className={`tab-btn ${activeTab === "OPEN" ? "active" : ""}`}
+          onClick={() => {
+            setActiveTab("OPEN");
+            setPage(1);
+          }}
         >
-          รอความช่วยเหลือ ({waitingList.length})
+          รอ ({counts.open})
         </button>
         <button
-          className={`tab-btn ${activeTab === "helped" ? "active" : ""}`}
-          onClick={() => setActiveTab("helped")}
+          className={`tab-btn ${activeTab === "ACCEPTED" ? "active" : ""}`}
+          onClick={() => {
+            setActiveTab("ACCEPTED");
+            setPage(1);
+          }}
         >
-          ได้รับความช่วยเหลือแล้ว ({helpedList.length})
+          กำลังช่วยเหลือ ({counts.accepted})
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "RESOLVED" ? "active" : ""}`}
+          onClick={() => {
+            setActiveTab("RESOLVED");
+            setPage(1);
+          }}
+        >
+          ช่วยเหลือแล้ว ({counts.resolved})
         </button>
       </div>
 
+      {/* Filter + search + sort + page size */}
+      <div className="filters-row" style={{ marginBottom: 10 }}>
+        <div style={{ flex: 1, display: "flex", gap: 8 }}>
+          <Search size={18} />
+          <input
+            className="search-input"
+            placeholder="ค้นหาชื่อ / เบอร์ / สิ่งที่ต้องการ..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPage(1);
+            }}
+          />
+
+          <select
+            className="filter-select"
+            value={sortBy}
+            onChange={(e) => {
+              setSortBy(e.target.value as SortBy);
+              setPage(1);
+            }}
+          >
+            <option value="newest">ใหม่สุด → เก่าสุด</option>
+            <option value="oldest">เก่าสุด → ใหม่สุด</option>
+            <option value="name-asc">ชื่อ A → Z</option>
+            <option value="name-desc">ชื่อ Z → A</option>
+          </select>
+
+          <select
+            className="filter-select"
+            value={pageSize}
+            onChange={(e) => {
+              setPageSize(Number(e.target.value));
+              setPage(1);
+            }}
+          >
+            <option value={50}>50 รายการ</option>
+            <option value={100}>100 รายการ (ค่าเริ่มต้น)</option>
+            <option value={200}>200 รายการ</option>
+            <option value={500}>500 รายการ</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Pagination Controls */}
+      <PaginationControl
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageStart={pageStart}
+        pageEnd={pageEnd}
+        setPage={setPage}
+      />
+
+      {/* Needs list */}
       <div className="needs-list">
-        {currentList.length === 0 ? (
-          <div className="text-center py-8 text-muted">
-            ไม่มีข้อมูลในรายการนี้
-          </div>
+        {paginated.length === 0 ? (
+          <div className="empty-state">ไม่มีข้อมูล</div>
         ) : (
-          currentList.map((item) => (
+          paginated.map((item) => (
             <div key={item.id} className={`need-card status-${item.status}`}>
               <div className="need-card-header">
                 <div className="need-info">
                   <h3>
-                    <User size={20} className="inline mr-2" />
-                    {item.name || "ไม่ระบุชื่อ"}
+                    <User size={18} /> {item.name || "ไม่ระบุชื่อ"}
                   </h3>
                   <div className="need-meta">
                     <span>
-                      <Phone size={16} className="inline mr-1" />
-                      {item.phone}
+                      <Phone size={14} /> {item.phone || "-"}
                     </span>
                     <span>
-                      <Clock size={16} className="inline mr-1" />
-                      {formatTime(item.timestamp)}
+                      <Clock size={14} /> {formatTime(item.timestamp)}
                     </span>
                   </div>
                 </div>
-                <span className={`badge badge-${item.status.toLowerCase()}`}>
+
+                <span
+                  className={
+                    "badge " +
+                    (item.status === "OPEN"
+                      ? "badge-open"
+                      : item.status === "ACCEPTED"
+                      ? "badge-accepted"
+                      : "badge-resolved")
+                  }
+                >
                   {item.status === "OPEN"
-                    ? "รอความช่วยเหลือ"
+                    ? "รอช่วยเหลือ"
                     : item.status === "ACCEPTED"
                     ? "กำลังช่วยเหลือ"
                     : "ช่วยเหลือแล้ว"}
@@ -245,39 +381,56 @@ const AdminDashboard: React.FC = () => {
               </div>
 
               <div className="need-content">
-                <strong>สิ่งที่ต้องการ:</strong> {item.need}
+                <strong>สิ่งที่ต้องการ:</strong> {item.need || "-"}
               </div>
 
               {item.status === "ACCEPTED" && (
-                <div className="bg-yellow-50 p-3 rounded text-sm text-yellow-800 border border-yellow-200">
-                  <strong>ผู้ช่วยเหลือ:</strong> {item.helperName} (
+                <div className="help-box">
+                  <strong>ผู้ช่วยเหลือ: </strong> {item.helperName} (
                   {item.helperPhone})
                 </div>
               )}
 
               <div className="need-actions">
-                <button
-                  className="btn btn-map flex-1"
-                  onClick={() => openGoogleMaps(item.lat, item.lng)}
-                >
-                  <Navigation size={18} className="mr-2" /> ดูแผนที่ (Google
-                  Maps)
-                </button>
+                {item.status === "OPEN" && (
+                  <button
+                    className="btn btn-resolve"
+                    onClick={() => handleAccept(item.id)}
+                  >
+                    รับเรื่อง (Accept)
+                  </button>
+                )}
 
                 {item.status !== "RESOLVED" && (
                   <button
-                    className="btn btn-resolve flex-1"
-                    onClick={() => handleMarkAsHelped(item.id)}
+                    className="btn btn-map"
+                    onClick={() => handleResolve(item.id)}
                   >
-                    <CheckCircle size={18} className="mr-2" />{" "}
-                    ทำเครื่องหมายว่าช่วยเหลือแล้ว
+                    ช่วยเหลือแล้ว
                   </button>
                 )}
+
+                <button
+                  className="btn btn-map"
+                  onClick={() => openGoogleMaps(item.lat, item.lng)}
+                >
+                  <Navigation size={14} /> แผนที่
+                </button>
               </div>
             </div>
           ))
         )}
       </div>
+
+      {/* Pagination Controls */}
+      <PaginationControl
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        pageStart={pageStart}
+        pageEnd={pageEnd}
+        setPage={setPage}
+      />
     </div>
   );
 };
