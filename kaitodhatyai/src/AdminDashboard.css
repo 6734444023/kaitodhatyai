@@ -4,6 +4,8 @@
   padding: 1rem;
   background-color: var(--background);
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .admin-login {
@@ -11,7 +13,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 80vh;
   gap: 1rem;
 }
 
@@ -213,7 +214,8 @@
     flex-direction: column; /* Stack action buttons */
   }
 
-  .btn-map, .btn-resolve {
+  .btn-map,
+  .btn-resolve {
     width: 100%;
     justify-content: center;
   }
@@ -221,5 +223,9 @@
   .admin-login input {
     width: 100%;
     max-width: 300px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 }
