@@ -1,4 +1,4 @@
-import { MapPin, Menu, X, LogIn, LogOut, Bell } from 'lucide-react';
+import { MapPin, Menu, X, LogIn, LogOut, Bell, Shield } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import './App.css';
@@ -87,6 +87,13 @@ function Navbar({ user, isMobileMenuOpen, setIsMobileMenuOpen }: { user: User | 
             )}
 
             <button
+              className="btn btn-outline text-sm flex items-center gap-1"
+              onClick={() => navigate('/admin')}
+            >
+              <Shield size={16} /> สำหรับหน่วยงาน
+            </button>
+
+            <button
               className={`btn btn-primary text-sm ${isMapPage ? 'btn-switch-view' : ''}`}
               onClick={() => navigate('/map?mode=HELP')}
             >
@@ -134,6 +141,13 @@ function Navbar({ user, isMobileMenuOpen, setIsMobileMenuOpen }: { user: User | 
                   กลับหน้าหลัก
                 </button>
               )}
+
+              <button
+                className="btn btn-outline btn-full flex items-center justify-center gap-2"
+                onClick={() => { navigate('/admin'); setIsMobileMenuOpen(false); }}
+              >
+                <Shield size={18} /> สำหรับหน่วยงาน
+              </button>
 
               <div className="divider"></div>
 

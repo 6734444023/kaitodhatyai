@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, onSnapshot, doc, updateDoc, query, where, Timestamp } from 'firebase/firestore';
 import { db } from './firebase-config';
-import { Phone, CheckCircle, Clock, User, Navigation } from 'lucide-react';
+import { Phone, CheckCircle, Clock, User, Navigation, Facebook } from 'lucide-react';
 import './AdminDashboard.css';
 
 interface NeedPin {
@@ -119,6 +119,18 @@ const AdminDashboard: React.FC = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
             <button type="submit" className="btn btn-primary">เข้าสู่ระบบ</button>
+            
+            <div className="mt-4 text-center">
+              <p className="text-sm text-gray-500 mb-2">ไม่มีรหัสผ่าน? ติดต่อขอรหัสได้ที่</p>
+              <a 
+                href="https://www.facebook.com/kluay.game" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn btn-outline flex items-center gap-2 text-blue-600 border-blue-600 hover:bg-blue-50"
+              >
+                <Facebook size={18} /> ติดต่อผู้ดูแลระบบ (Facebook)
+              </a>
+            </div>
           </form>
         </div>
       </div>

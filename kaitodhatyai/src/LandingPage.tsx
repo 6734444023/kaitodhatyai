@@ -1,4 +1,4 @@
-import { MapPin, LifeBuoy, HandHeart, Waves, Navigation, LogIn, Trash2 } from 'lucide-react';
+import { MapPin, LifeBuoy, HandHeart, Waves, Navigation, LogIn, Trash2, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { collection, query, where, getCountFromServer, getDocs } from 'firebase/firestore';
@@ -133,6 +133,10 @@ function LandingPage() {
               <button className="btn btn-outline btn-lg" onClick={() => navigate('/map?mode=SHOP')}>
                 <Navigation size={20} className="mr-2" />
                 ร้านค้าปักหมุด
+              </button>
+              <button className="btn btn-outline btn-lg hide-on-desktop" onClick={() => navigate('/admin')}>
+                <Shield size={20} className="mr-2" />
+                สำหรับหน่วยงาน
               </button>
             </div>
           </div>
