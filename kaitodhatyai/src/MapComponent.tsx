@@ -34,9 +34,9 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
+import RequestFilter from "./components/RequestFilter";
 import { db } from "./firebase-config"; // นำเข้า db ที่ตั้งค่าไว้
 import "./MapComponent.css";
-import RequestFilter from "./components/RequestFilter";
 
 // กำหนด Type Interface
 interface NeedPin {
@@ -458,9 +458,35 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = "HELP" }) => {
     }
   };
 
+  // 6. Logic สำหรับเปลี่ยนสถานะหมุดว่าได้รับความช่วยเหลือแล้ว (เฉพาะเจ้าของ)
+  const handleMarkAsHelped = async (pinId: string) => {
+    if (window.confirm("ยืนยันว่าผู้ประสบภัยรายนี้ได้รับความช่วยเหลือแล้ว?")) {
+      try {
+        await updateDoc(doc(db, "needs", pinId), {
+          status: "RESOLVED",
+        });
+      } catch (error) {
+        console.error("Error updating status:", error);
+        alert("เกิดข้อผิดพลาดในการอัปเดตสถานะ");
+      }
+    }
+  };
   return (
     <div className="map-page-container">
-      <RequestFilter onChange={setFilters} />
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <RequestFilter onChange={setFilters} />
+        {user && user.uid && (
+          <p style={{ color: "red" }}>
+            *หากได้รับการช่วยเหลือแล้ว รบกวนกดปุ่ม "ได้รับความช่วยเหลือแล้ว"
+            ในแผนที่
+          </p>
+        )}
+      </div>
 
       {/* Search Box */}
       <div
@@ -616,6 +642,16 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = "HELP" }) => {
                       style={{ color: "red", borderColor: "red" }}
                     >
                       <Trash2 size={14} /> ลบหมุดของฉัน
+                    </button>
+                  )}
+
+                  {user && user.uid === pin.userId && (
+                    <button
+                      onClick={() => handleMarkAsHelped(pin.id)}
+                      className="btn btn-sm btn-outline-success mt-2 w-full flex items-center justify-center gap-1"
+                      style={{ color: "green", borderColor: "green" }}
+                    >
+                      <CheckCircle size={14} /> ได้รับความช่วยเหลือแล้ว
                     </button>
                   )}
 
