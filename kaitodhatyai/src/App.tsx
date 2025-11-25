@@ -23,6 +23,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import "./App.css";
+import AdminRouteGuard from "./components/AdminRouteGuard/AdminRouteGuard";
 import {
   auth,
   db,
@@ -35,6 +36,8 @@ import "./index.css";
 import LandingPage from "./LandingPage";
 import MapComponent from "./MapComponent";
 import AdminDashboard from "./pages/AdminDashboard/AdminDashboard";
+import { AdminLoginPage } from "./pages/AdminLogin/AdminLogin";
+import { AuthProvider } from "./providers/AuthProvider";
 
 // Component: Notification Toast
 function NotificationToast({
@@ -371,7 +374,18 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/map" element={<MapRoute user={user} />} />
-            <Route path="/admin" element={<AdminDashboard />} />
+
+            <Route element={<AuthProvider />}>
+              <Route
+                path="/admin"
+                element={
+                  <AdminRouteGuard>
+                    <AdminDashboard />
+                  </AdminRouteGuard>
+                }
+              />
+              <Route path="/admin-login" element={<AdminLoginPage />} />
+            </Route>
           </Routes>
         </main>
       </div>
