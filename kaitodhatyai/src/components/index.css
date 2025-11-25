@@ -50,16 +50,6 @@
   align-items: center;
 }
 
-/* buttons */
-.btn {
-  padding: 9px 12px;
-  font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  font-weight: 600;
-}
-
 .btn.apply {
   background: #4a90e2;
   color: #fff;
