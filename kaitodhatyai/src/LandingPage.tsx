@@ -1,7 +1,7 @@
 import { MapPin, LifeBuoy, HandHeart, Waves, Navigation, LogIn, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { collection, query, where, getCountFromServer } from 'firebase/firestore';
+import { collection, query, where, getCountFromServer, getDocs } from 'firebase/firestore';
 import { db } from './firebase-config';
 
 function LandingPage() {
@@ -12,37 +12,65 @@ function LandingPage() {
   useEffect(() => {
     const fetchCounts = async () => {
       try {
-        // ใช้ getCountFromServer แทน onSnapshot เพื่อลดการดึงข้อมูลเอกสารทั้งหมด
+        // แยก Query เพื่อหลีกเลี่ยงปัญหา Index และ in operator
+        const needsRef = collection(db, 'needs');
+        
         // Query 1: รอความช่วยเหลือ (OPEN)
         const waitingQuery = query(
-          collection(db, 'needs'), 
+          needsRef, 
           where('type', '==', 'HELP'), 
           where('status', '==', 'OPEN')
         );
         
-        // Query 2: ช่วยเหลือแล้ว (ACCEPTED หรือ RESOLVED)
-        const helpedQuery = query(
-          collection(db, 'needs'), 
+        // Query 2: ช่วยเหลือแล้ว (ACCEPTED)
+        const acceptedQuery = query(
+          needsRef, 
           where('type', '==', 'HELP'), 
-          where('status', 'in', ['ACCEPTED', 'RESOLVED'])
+          where('status', '==', 'ACCEPTED')
+        );
+
+        // Query 3: ช่วยเหลือแล้ว (RESOLVED)
+        const resolvedQuery = query(
+          needsRef, 
+          where('type', '==', 'HELP'), 
+          where('status', '==', 'RESOLVED')
         );
 
         // ดึงข้อมูลแบบ Parallel
-        const [waitingSnap, helpedSnap] = await Promise.all([
+        const [waitingSnap, acceptedSnap, resolvedSnap] = await Promise.all([
           getCountFromServer(waitingQuery),
-          getCountFromServer(helpedQuery)
+          getCountFromServer(acceptedQuery),
+          getCountFromServer(resolvedQuery)
         ]);
 
         setWaitingCount(waitingSnap.data().count);
-        setHelpedCount(helpedSnap.data().count);
+        setHelpedCount(acceptedSnap.data().count + resolvedSnap.data().count);
+
       } catch (error) {
-        console.error("Error fetching counts:", error);
+        console.error("Error fetching counts with aggregation, falling back to basic query:", error);
+        
+        // Fallback: ถ้า getCountFromServer พัง (เช่นไม่มี Index) ให้ใช้ getDocs แบบเดิมแต่ดึงครั้งเดียว
+        try {
+            const q = query(collection(db, 'needs'), where('type', '==', 'HELP'));
+            const snapshot = await getDocs(q);
+            let waiting = 0;
+            let helped = 0;
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.status === 'OPEN') waiting++;
+                if (data.status === 'ACCEPTED' || data.status === 'RESOLVED') helped++;
+            });
+            setWaitingCount(waiting);
+            setHelpedCount(helped);
+        } catch (fallbackError) {
+            console.error("Fallback fetch failed:", fallbackError);
+        }
       }
     };
 
     fetchCounts();
 
-    // ตั้งเวลาดึงข้อมูลใหม่ทุก 30 วินาที (Polling) แทน Realtime
+    // Polling ทุก 30 วินาที
     const interval = setInterval(fetchCounts, 30000);
     return () => clearInterval(interval);
   }, []);
