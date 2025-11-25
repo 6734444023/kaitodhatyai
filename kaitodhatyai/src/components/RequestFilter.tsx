@@ -7,7 +7,7 @@ export default function RequestFilters({
   onChange: (filters: { viewType: string; status: string }) => void;
 }) {
   // view: "mine" | "all"
-  const [viewType, setViewType] = useState("mine");
+  const [viewType, setViewType] = useState("all");
   // status: "" (all) | "OPEN" | "PENDING" | "RESOLVED"
   const [status, setStatus] = useState("");
 
@@ -58,9 +58,9 @@ export default function RequestFilters({
           type="button"
           className="btn clear"
           onClick={() => {
-            setViewType("mine");
+            setViewType("all");
             setStatus("");
-            if (onChange) onChange({ viewType: "mine", status: "" });
+            if (onChange) onChange({ viewType: "all", status: "" });
           }}
         >
           ล้าง

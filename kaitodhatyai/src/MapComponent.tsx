@@ -340,7 +340,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = "HELP" }) => {
   const [searchText, setSearchText] = useState("");
   const [mapFlyTo, setMapFlyTo] = useState<L.LatLngExpression | null>(null);
 
-  const [filters, setFilters] = useState({ viewType: "mine", status: "" });
+  const [filters, setFilters] = useState({ viewType: "all", status: "" });
 
   const handleSearch = () => {
     // รองรับรูปแบบ "lat, lng" หรือ "lat lng"
