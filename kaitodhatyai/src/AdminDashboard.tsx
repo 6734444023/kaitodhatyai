@@ -384,7 +384,7 @@ const AdminDashboard: React.FC = () => {
                 <strong>สิ่งที่ต้องการ:</strong> {item.need || "-"}
               </div>
 
-              {item.status === "ACCEPTED" && (
+              {(item.status === "ACCEPTED" || item.status === "RESOLVED") && (
                 <div className="help-box">
                   <strong>ผู้ช่วยเหลือ: </strong> {item.helperName} (
                   {item.helperPhone})
