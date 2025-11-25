@@ -1,5 +1,8 @@
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import L from 'leaflet';
 import { useState, useEffect } from 'react';
 import { collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
@@ -396,6 +399,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = 'HELP' }) => {
         <MapClickHandler onMapClick={handleMapClick} />
 
         {/* แสดงหมุดทั้งหมด */}
+        <MarkerClusterGroup chunkedLoading>
         {pins.map(pin => (
           <Marker
               key={pin.id}
@@ -432,6 +436,17 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = 'HELP' }) => {
                   )}
                   
                   <p><strong>เบอร์โทร:</strong> <Phone size={14} className="inline mr-1"/>{pin.phone}</p>
+
+                  {/* ปุ่มเปิด Google Maps */}
+                  <a 
+                    href={`https://www.google.com/maps/search/?api=1&query=${pin.lat},${pin.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-sm btn-outline-primary w-full flex items-center justify-center gap-1 mt-2"
+                    style={{ textDecoration: 'none', color: '#007bff', borderColor: '#007bff' }}
+                  >
+                    <MapPin size={14} /> เปิดใน Google Maps
+                  </a>
                   
                   {/* ปุ่มลบหมุด (เฉพาะเจ้าของ) */}
                   {user && user.uid === pin.userId && (
@@ -473,6 +488,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = 'HELP' }) => {
               </Popup>
           </Marker>
         ))}
+        </MarkerClusterGroup>
       </MapContainer>
 
       {/* Modal สำหรับการปักหมุด */}
