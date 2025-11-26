@@ -12,9 +12,9 @@ import {
 import { Clock, Facebook, Navigation, Phone, Search, User } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import "./AdminDashboard.css";
-import { ADMIN_PASSWORD } from "./config";
 import { db } from "./firebase-config";
 import PaginationControl from "./pages/AdminDashboard/components/PaginationControl";
+import { useAdminAuth } from "./providers/AdminAuthProvider";
 
 interface NeedPin {
   id: string;
@@ -34,7 +34,7 @@ interface NeedPin {
 type SortBy = "newest" | "oldest" | "name-asc" | "name-desc";
 
 const AdminDashboard: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { isAuth, login } = useAdminAuth();
   const [password, setPassword] = useState("");
 
   const [needs, setNeeds] = useState<NeedPin[]>([]);
@@ -61,7 +61,7 @@ const AdminDashboard: React.FC = () => {
 
   // Load data
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuth) return;
 
     const q = query(collection(db, "needs"), where("type", "==", "HELP"));
     const unsub = onSnapshot(q, (snapshot) => {
@@ -77,13 +77,11 @@ const AdminDashboard: React.FC = () => {
     });
 
     return () => unsub();
-  }, [isAuthenticated]);
+  }, [isAuth]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!!password && ADMIN_PASSWORD.includes(password))
-      setIsAuthenticated(true);
-    else alert("รหัสผ่านไม่ถูกต้อง");
+    login(password);
   };
 
   const formatTime = (ts?: Timestamp) => {
@@ -183,7 +181,7 @@ const AdminDashboard: React.FC = () => {
     resolved: needs.filter((n) => n.status === "RESOLVED").length,
   };
 
-  if (!isAuthenticated) {
+  if (!isAuth) {
     return (
       <div className="admin-container">
         <div className="admin-login">

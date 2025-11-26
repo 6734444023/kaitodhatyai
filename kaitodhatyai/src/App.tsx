@@ -34,6 +34,7 @@ import {
   doc,
   setDoc,
 } from "firebase/firestore";
+import { AdminAuthProvider } from "./providers/AdminAuthProvider";
 
 // Component: Notification Toast
 function NotificationToast({
@@ -351,30 +352,32 @@ function App() {
   }, [user]);
 
   return (
-    <Router>
-      <div className="app">
-        {notification && (
-          <NotificationToast
-            message={notification}
-            onClose={() => setNotification(null)}
+    <AdminAuthProvider>
+      <Router>
+        <div className="app">
+          {notification && (
+            <NotificationToast
+              message={notification}
+              onClose={() => setNotification(null)}
+            />
+          )}
+          <Navbar
+            user={user}
+            isMobileMenuOpen={isMobileMenuOpen}
+            setIsMobileMenuOpen={setIsMobileMenuOpen}
           />
-        )}
-        <Navbar
-          user={user}
-          isMobileMenuOpen={isMobileMenuOpen}
-          setIsMobileMenuOpen={setIsMobileMenuOpen}
-        />
 
-        {/* Main Content Area */}
-        <main className="main-content-area">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/map" element={<MapRoute user={user} />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+          {/* Main Content Area */}
+          <main className="main-content-area">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/map" element={<MapRoute user={user} />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </AdminAuthProvider>
   );
 }
 
