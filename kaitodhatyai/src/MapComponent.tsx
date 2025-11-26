@@ -37,6 +37,7 @@ import MarkerClusterGroup from "react-leaflet-cluster";
 import RequestFilter from "./components/RequestFilter";
 import { db } from "./firebase-config"; // นำเข้า db ที่ตั้งค่าไว้
 import "./MapComponent.css";
+import { useAdminAuth } from "./providers/AdminAuthProvider";
 
 // กำหนด Type Interface
 interface NeedPin {
@@ -332,6 +333,7 @@ interface MapComponentProps {
 }
 
 const MapComponent: React.FC<MapComponentProps> = ({ user, mode = "HELP" }) => {
+  const { isAuth } = useAdminAuth();
   const [pins, setPins] = useState<NeedPin[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [clickedLatLng, setClickedLatLng] = useState<L.LatLng | null>(null);
@@ -657,10 +659,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = "HELP" }) => {
                       </button>
                     )}
 
-                  {/* ฟอร์มช่วยเหลือ (เฉพาะหมุด HELP และไม่ใช่เจ้าของ) */}
+                  {/* ฟอร์มช่วยเหลือ (เฉพาะหมุด HELP และไม่ใช่เจ้าของ และต้องเป็น admin) */}
                   {pin.type !== "SHOP" &&
                     pin.status === "OPEN" &&
-                    (!user || user.uid !== pin.userId) && (
+                    (!user || user.uid !== pin.userId) &&
+                    isAuth && (
                       <AcceptHelpForm
                         pinId={pin.id}
                         onAccept={handleAcceptHelp}
