@@ -16,13 +16,20 @@ export default function PaginationControl({
   setPage: (page: number) => void;
 }) {
   return (
-    <div className="pagination-control">
-      <div className="pagination-info">
+    <div
+      style={{
+        marginTop: 20,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}
+    >
+      <div style={{ color: "var(--muted)" }}>
         แสดงผล {total === 0 ? 0 : pageStart + 1} – {Math.min(total, pageEnd)}{" "}
         จากทั้งหมด {total}
       </div>
 
-      <div className="pagination-actions">
+      <div style={{ display: "flex", gap: 10 }}>
         <button
           className="btn btn-map"
           disabled={page === 1}
