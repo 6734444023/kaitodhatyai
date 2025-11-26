@@ -284,9 +284,9 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       {/* Filter + search + sort + page size */}
-      <div className="filters-row">
-        <div className="search-box">
-          <Search size={18} className="text-muted" />
+      <div className="filters-row" style={{ marginBottom: 10 }}>
+        <div style={{ flex: 1, display: "flex", gap: 8 }}>
+          <Search size={18} />
           <input
             className="search-input"
             placeholder="ค้นหาชื่อ / เบอร์ / สิ่งที่ต้องการ..."
@@ -296,9 +296,7 @@ const AdminDashboard: React.FC = () => {
               setPage(1);
             }}
           />
-        </div>
 
-        <div className="filter-actions">
           <select
             className="filter-select"
             value={sortBy}
