@@ -71,14 +71,19 @@ const HATYAI_CENTER: [number, number] = [7.0, 100.4781];
 const INITIAL_ZOOM = 13;
 
 // ฟังก์ชันกำหนดสี Marker ตามสถานะ
-const getMarkerIcon = (pin: NeedPin): L.Icon | L.DivIcon => {
+const getMarkerIcon = (
+  pin: NeedPin,
+  isMyPin: boolean,
+  isAuth: boolean
+): L.Icon | L.DivIcon => {
   // ถ้าเป็นโหมด HELP ให้แสดงเป็นชื่อคน (Label) แทนหมุด
   if (pin.type === "HELP") {
     let statusClass = "status-OPEN";
     if (pin.status === "ACCEPTED") statusClass = "status-ACCEPTED";
     if (pin.status === "RESOLVED") statusClass = "status-RESOLVED";
 
-    const displayName = pin.name || "ผู้ประสบภัย";
+    const displayName =
+      isMyPin || isAuth ? pin.name || "ผู้ประสบภัย" : "ผู้ประสบภัย";
 
     return L.divIcon({
       className: "custom-label-icon",
@@ -473,6 +478,11 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = "HELP" }) => {
       }
     }
   };
+
+  const isMyPin = (pin: NeedPin): boolean => {
+    return Boolean(user && user.uid === pin.userId);
+  };
+
   return (
     <div className="map-page-container">
       <div
@@ -557,7 +567,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = "HELP" }) => {
             <Marker
               key={pin.id}
               position={[pin.lat, pin.lng]}
-              icon={getMarkerIcon(pin)}
+              icon={getMarkerIcon(pin, isMyPin(pin), isAuth)}
             >
               <Popup>
                 <div className="pin-popup">
@@ -606,20 +616,27 @@ const MapComponent: React.FC<MapComponentProps> = ({ user, mode = "HELP" }) => {
                           : "มีผู้รับแล้ว"}
                       </h4>
                       <p>
-                        <strong>ผู้ขอความช่วยเหลือ:</strong>{" "}
-                        {pin.name || "ไม่ระบุ"}
+                        <strong>ID:</strong> {pin.id}
                       </p>
+                      {isMyPin(pin) || isAuth ? (
+                        <p>
+                          <strong>ผู้ขอความช่วยเหลือ:</strong>{" "}
+                          {pin.name || "ไม่ระบุ"}
+                        </p>
+                      ) : null}
                       <p>
                         <strong>ความต้องการ:</strong> {pin.need}
                       </p>
                     </>
                   )}
 
-                  <p>
-                    <strong>เบอร์โทร:</strong>{" "}
-                    <Phone size={14} className="inline mr-1" />
-                    {pin.phone}
-                  </p>
+                  {isMyPin(pin) || isAuth ? (
+                    <p>
+                      <strong>เบอร์โทร:</strong>{" "}
+                      <Phone size={14} className="inline mr-1" />
+                      {pin.phone}
+                    </p>
+                  ) : null}
 
                   {/* ปุ่มเปิด Google Maps */}
                   <a
