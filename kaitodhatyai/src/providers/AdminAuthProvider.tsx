@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import { ADMIN_PASSWORD } from "../config";
+import adminLogin from "../services/admin";
 
 interface IAdminAuthContext {
   isAuth: boolean;
@@ -24,7 +24,8 @@ export const AdminAuthProvider = ({
   const [isAuth, setIsAuth] = useState(false);
 
   const login = async (password: string) => {
-    if (ADMIN_PASSWORD.includes(password)) setIsAuth(true);
+    const res = await adminLogin(password);
+    if (res.success) setIsAuth(true);
     else alert("รหัสผ่านไม่ถูกต้อง");
   };
 
