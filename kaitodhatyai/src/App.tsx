@@ -22,8 +22,8 @@ import {
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
-import AdminDashboard from "./AdminDashboard";
 import "./App.css";
+import AnnouncementBanner from "./components/AnnouncementBanner";
 import {
   auth,
   db,
@@ -35,7 +35,6 @@ import {
 import LandingPage from "./LandingPage";
 import MapComponent from "./MapComponent";
 import { AdminAuthProvider } from "./providers/AdminAuthProvider";
-import AnnouncementBanner from "./components/AnnouncementBanner";
 
 // Component: Notification Toast
 function NotificationToast({
@@ -356,7 +355,6 @@ function App() {
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/map" element={<MapRoute user={user} />} />
-              <Route path="/admin" element={<AdminDashboard />} />
             </Routes>
           </main>
           <AnnouncementBanner
