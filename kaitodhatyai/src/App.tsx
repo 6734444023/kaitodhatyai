@@ -35,6 +35,7 @@ import {
 import LandingPage from "./LandingPage";
 import MapComponent from "./MapComponent";
 import { AdminAuthProvider } from "./providers/AdminAuthProvider";
+import AnnouncementBanner from "./components/AnnouncementBanner";
 
 // Component: Notification Toast
 function NotificationToast({
@@ -358,6 +359,11 @@ function App() {
               <Route path="/admin" element={<AdminDashboard />} />
             </Routes>
           </main>
+          <AnnouncementBanner
+            message="ระบบได้ส่งข้อมูลของคุณให้กับ BDI เรียบร้อยแล้ว ข้อมูลทั้งหมดจะถูกรวบรวมไว้ในศูนย์ประสานงานกลางเพื่อให้สามารถช่วยเหลือผู้ประสบภัยน้ำท่วมได้อย่างรวดเร็วและมีประสิทธิภาพ"
+            type="info"
+            position="bottom"
+          />
         </div>
       </Router>
     </AdminAuthProvider>
