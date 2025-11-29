@@ -1,39 +1,39 @@
-import { MapPin, Menu, X, LogIn, LogOut, Bell, Shield } from "lucide-react";
-import { useState, useEffect } from "react";
 import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useNavigate,
-  useLocation,
-  useSearchParams,
-} from "react-router-dom";
-import "./App.css";
-import MapComponent from "./MapComponent";
-import LandingPage from "./LandingPage";
-import AdminDashboard from "./AdminDashboard";
-import {
-  auth,
-  googleProvider,
-  db,
-  messaging,
-  getToken,
-  onMessage,
-} from "./firebase-config";
-import {
+  onAuthStateChanged,
   signInWithPopup,
   signOut,
-  onAuthStateChanged,
   type User,
 } from "firebase/auth";
 import {
   collection,
-  query,
-  where,
-  onSnapshot,
   doc,
+  onSnapshot,
+  query,
   setDoc,
+  where,
 } from "firebase/firestore";
+import { Bell, LogIn, LogOut, MapPin, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+import AdminDashboard from "./AdminDashboard";
+import "./App.css";
+import {
+  auth,
+  db,
+  getToken,
+  googleProvider,
+  messaging,
+  onMessage,
+} from "./firebase-config";
+import LandingPage from "./LandingPage";
+import MapComponent from "./MapComponent";
 import { AdminAuthProvider } from "./providers/AdminAuthProvider";
 
 // Component: Notification Toast
@@ -146,13 +146,6 @@ function Navbar({
           )}
 
           <button
-            className="btn btn-outline text-sm flex items-center gap-1"
-            onClick={() => navigate("/admin")}
-          >
-            <Shield size={16} /> สำหรับหน่วยงาน
-          </button>
-
-          <button
             className={`btn btn-primary text-sm ${
               isMapPage ? "btn-switch-view" : ""
             }`}
@@ -215,16 +208,6 @@ function Navbar({
                 กลับหน้าหลัก
               </button>
             )}
-
-            <button
-              className="btn btn-outline btn-full flex items-center justify-center gap-2"
-              onClick={() => {
-                navigate("/admin");
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              <Shield size={18} /> สำหรับหน่วยงาน
-            </button>
 
             <div className="divider"></div>
 
