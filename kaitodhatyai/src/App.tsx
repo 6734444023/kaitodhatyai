@@ -1,28 +1,24 @@
-import { MapPin, Menu, X, LogIn, LogOut, Bell, Shield } from "lucide-react";
+import { MapPin, X, Bell } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   useNavigate,
-  useLocation,
   useSearchParams,
 } from "react-router-dom";
 import "./App.css";
 import MapComponent from "./MapComponent";
-import LandingPage from "./LandingPage";
 import AdminDashboard from "./AdminDashboard";
+import ThankYouPage from "./pages/ThankYouPage";
 import {
   auth,
-  googleProvider,
   db,
   messaging,
   getToken,
   onMessage,
 } from "./firebase-config";
 import {
-  signInWithPopup,
-  signOut,
   onAuthStateChanged,
   type User,
 } from "firebase/auth";
@@ -74,36 +70,8 @@ function MapRoute({ user }: { user: User | null }) {
   return <MapComponent user={user} mode={mode} />;
 }
 
-function Navbar({
-  user,
-  isMobileMenuOpen,
-  setIsMobileMenuOpen,
-}: {
-  user: User | null;
-  isMobileMenuOpen: boolean;
-  setIsMobileMenuOpen: (open: boolean) => void;
-}) {
+function Navbar() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const isMapPage = location.pathname === "/map";
-
-  const handleLogin = async () => {
-    try {
-      await signInWithPopup(auth, googleProvider);
-      setIsMobileMenuOpen(false);
-    } catch (error) {
-      console.error("Login failed", error);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      setIsMobileMenuOpen(false);
-    } catch (error) {
-      console.error("Logout failed", error);
-    }
-  };
 
   return (
     <nav className="navbar">
@@ -117,134 +85,7 @@ function Navbar({
           </div>
           <span className="brand-name">hatyaitongrod</span>
         </div>
-
-        {/* Desktop Menu */}
-        <div className="nav-actions flex items-center gap-4 hidden-mobile">
-          {user ? (
-            <div className="flex items-center gap-2">
-              <img
-                src={user.photoURL || ""}
-                alt="User"
-                className="w-8 h-8 rounded-full border border-gray-300"
-              />
-              <span className="text-sm font-medium">{user.displayName}</span>
-              <button
-                onClick={handleLogout}
-                className="btn btn-sm btn-outline flex items-center gap-1"
-              >
-                <LogOut size={16} /> <span>ออกระบบ</span>
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={handleLogin}
-              className="btn btn-primary text-sm flex items-center gap-1"
-            >
-              <LogIn size={16} /> เข้าสู่ระบบ
-            </button>
-          )}
-
-          <button
-            className="btn btn-outline text-sm flex items-center gap-1"
-            onClick={() => navigate("/admin")}
-          >
-            <Shield size={16} /> สำหรับหน่วยงาน
-          </button>
-
-          <button
-            className={`btn btn-primary text-sm ${
-              isMapPage ? "btn-switch-view" : ""
-            }`}
-            onClick={() => navigate("/map?mode=HELP")}
-          >
-            เข้าสู่แผนที่สด (Live Map)
-          </button>
-          {isMapPage && (
-            <button
-              className="btn btn-outline text-sm"
-              onClick={() => navigate("/")}
-            >
-              หน้าหลัก
-            </button>
-          )}
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          className="menu-btn mobile-only"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
       </div>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="mobile-menu animate-fade-in">
-          <div className="mobile-menu-content">
-            {user ? (
-              <div className="mobile-user-profile">
-                <img
-                  src={user.photoURL || ""}
-                  alt="User"
-                  className="w-10 h-10 rounded-full border border-gray-300"
-                />
-                <span className="font-medium">{user.displayName}</span>
-              </div>
-            ) : null}
-
-            <button
-              className="btn btn-primary btn-full"
-              onClick={() => {
-                navigate("/map?mode=HELP");
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              เข้าสู่แผนที่สด (Live Map)
-            </button>
-
-            {isMapPage && (
-              <button
-                className="btn btn-outline btn-full"
-                onClick={() => {
-                  navigate("/");
-                  setIsMobileMenuOpen(false);
-                }}
-              >
-                กลับหน้าหลัก
-              </button>
-            )}
-
-            <button
-              className="btn btn-outline btn-full flex items-center justify-center gap-2"
-              onClick={() => {
-                navigate("/admin");
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              <Shield size={18} /> สำหรับหน่วยงาน
-            </button>
-
-            <div className="divider"></div>
-
-            {user ? (
-              <button
-                onClick={handleLogout}
-                className="btn btn-outline btn-full flex items-center justify-center gap-2 text-red-500 border-red-500"
-              >
-                <LogOut size={18} /> ออกระบบ
-              </button>
-            ) : (
-              <button
-                onClick={handleLogin}
-                className="btn btn-primary btn-full flex items-center justify-center gap-2"
-              >
-                <LogIn size={18} /> เข้าสู่ระบบ
-              </button>
-            )}
-          </div>
-        </div>
-      )}
     </nav>
   );
 }
@@ -252,7 +93,6 @@ function Navbar({
 // Component: Main App
 function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
 
   useEffect(() => {
@@ -359,18 +199,15 @@ function App() {
             onClose={() => setNotification(null)}
           />
         )}
-        <Navbar
-          user={user}
-          isMobileMenuOpen={isMobileMenuOpen}
-          setIsMobileMenuOpen={setIsMobileMenuOpen}
-        />
+        <Navbar />
 
         {/* Main Content Area */}
         <main className="main-content-area">
           <Routes>
-            <Route path="/" element={<LandingPage />} />
+            <Route path="/" element={<ThankYouPage />} />
             <Route path="/map" element={<MapRoute user={user} />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/thank-you" element={<ThankYouPage />} />
           </Routes>
         </main>
       </div>
