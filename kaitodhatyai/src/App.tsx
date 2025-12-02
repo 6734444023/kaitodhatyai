@@ -9,7 +9,6 @@ import {
 } from "react-router-dom";
 import "./App.css";
 import MapComponent from "./MapComponent";
-import AdminDashboard from "./AdminDashboard";
 import ThankYouPage from "./pages/ThankYouPage";
 import {
   auth,
@@ -206,7 +205,6 @@ function App() {
           <Routes>
             <Route path="/" element={<ThankYouPage />} />
             <Route path="/map" element={<MapRoute user={user} />} />
-            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/thank-you" element={<ThankYouPage />} />
           </Routes>
         </main>

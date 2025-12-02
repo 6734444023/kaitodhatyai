@@ -1,8 +1,22 @@
-import { MapPin, LifeBuoy, HandHeart, Waves, Navigation, LogIn, Trash2, Shield } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { collection, query, where, getCountFromServer, getDocs } from 'firebase/firestore';
-import { db } from './firebase-config';
+import {
+  collection,
+  getCountFromServer,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import {
+  HandHeart,
+  LifeBuoy,
+  LogIn,
+  MapPin,
+  Navigation,
+  Trash2,
+  Waves,
+} from "lucide-react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { db } from "./firebase-config";
 
 function LandingPage() {
   const navigate = useNavigate();
@@ -13,57 +27,60 @@ function LandingPage() {
     const fetchCounts = async () => {
       try {
         // แยก Query เพื่อหลีกเลี่ยงปัญหา Index และ in operator
-        const needsRef = collection(db, 'needs');
-        
+        const needsRef = collection(db, "needs");
+
         // Query 1: รอความช่วยเหลือ (OPEN)
         const waitingQuery = query(
-          needsRef, 
-          where('type', '==', 'HELP'), 
-          where('status', '==', 'OPEN')
+          needsRef,
+          where("type", "==", "HELP"),
+          where("status", "==", "OPEN")
         );
-        
+
         // Query 2: ช่วยเหลือแล้ว (ACCEPTED)
         const acceptedQuery = query(
-          needsRef, 
-          where('type', '==', 'HELP'), 
-          where('status', '==', 'ACCEPTED')
+          needsRef,
+          where("type", "==", "HELP"),
+          where("status", "==", "ACCEPTED")
         );
 
         // Query 3: ช่วยเหลือแล้ว (RESOLVED)
         const resolvedQuery = query(
-          needsRef, 
-          where('type', '==', 'HELP'), 
-          where('status', '==', 'RESOLVED')
+          needsRef,
+          where("type", "==", "HELP"),
+          where("status", "==", "RESOLVED")
         );
 
         // ดึงข้อมูลแบบ Parallel
         const [waitingSnap, acceptedSnap, resolvedSnap] = await Promise.all([
           getCountFromServer(waitingQuery),
           getCountFromServer(acceptedQuery),
-          getCountFromServer(resolvedQuery)
+          getCountFromServer(resolvedQuery),
         ]);
 
         setWaitingCount(waitingSnap.data().count);
         setHelpedCount(acceptedSnap.data().count + resolvedSnap.data().count);
-
       } catch (error) {
-        console.error("Error fetching counts with aggregation, falling back to basic query:", error);
-        
+        console.error(
+          "Error fetching counts with aggregation, falling back to basic query:",
+          error
+        );
+
         // Fallback: ถ้า getCountFromServer พัง (เช่นไม่มี Index) ให้ใช้ getDocs แบบเดิมแต่ดึงครั้งเดียว
         try {
-            const q = query(collection(db, 'needs'), where('type', '==', 'HELP'));
-            const snapshot = await getDocs(q);
-            let waiting = 0;
-            let helped = 0;
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                if (data.status === 'OPEN') waiting++;
-                if (data.status === 'ACCEPTED' || data.status === 'RESOLVED') helped++;
-            });
-            setWaitingCount(waiting);
-            setHelpedCount(helped);
+          const q = query(collection(db, "needs"), where("type", "==", "HELP"));
+          const snapshot = await getDocs(q);
+          let waiting = 0;
+          let helped = 0;
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.status === "OPEN") waiting++;
+            if (data.status === "ACCEPTED" || data.status === "RESOLVED")
+              helped++;
+          });
+          setWaitingCount(waiting);
+          setHelpedCount(helped);
         } catch (fallbackError) {
-            console.error("Fallback fetch failed:", fallbackError);
+          console.error("Fallback fetch failed:", fallbackError);
         }
       }
     };
@@ -76,32 +93,41 @@ function LandingPage() {
   }, []);
 
   return (
-    <div className="landing-page-container" style={{ height: '100%', overflowY: 'auto' }}>
-      
+    <div
+      className="landing-page-container"
+      style={{ height: "100%", overflowY: "auto" }}
+    >
       {/* Stats Banner */}
       <div className="bg-white py-6 border-b border-gray-100 shadow-sm relative z-20">
-         <div className="container flex justify-center gap-8 md:gap-16 text-center">
-            <div className="animate-fade-in">
-               <h3 className="text-4xl font-bold text-red-500 mb-1">{waitingCount}</h3>
-               <p className="text-sm text-gray-500 font-medium">รอความช่วยเหลือ</p>
-            </div>
-            <div className="w-px bg-gray-200 h-16"></div>
-            <div className="animate-fade-in delay-100">
-               <h3 className="text-4xl font-bold text-green-500 mb-1">{helpedCount}</h3>
-               <p className="text-sm text-gray-500 font-medium">ช่วยเหลือแล้ว</p>
-            </div>
-         </div>
-       </div>
+        <div className="container flex justify-center gap-8 md:gap-16 text-center">
+          <div className="animate-fade-in">
+            <h3 className="text-4xl font-bold text-red-500 mb-1">
+              {waitingCount}
+            </h3>
+            <p className="text-sm text-gray-500 font-medium">รอความช่วยเหลือ</p>
+          </div>
+          <div className="w-px bg-gray-200 h-16"></div>
+          <div className="animate-fade-in delay-100">
+            <h3 className="text-4xl font-bold text-green-500 mb-1">
+              {helpedCount}
+            </h3>
+            <p className="text-sm text-gray-500 font-medium">ช่วยเหลือแล้ว</p>
+          </div>
+        </div>
+      </div>
 
       {/* Hero Section */}
       <header className="hero">
         <div className="container flex items-center justify-between hero-content">
-
           {/* Illustration Area */}
           <div className="hero-visual animate-fade-in">
             <div className="illustration-container">
               <div className="hand-help animate-float">
-                <HandHeart size={120} className="text-primary" strokeWidth={1.5} />
+                <HandHeart
+                  size={120}
+                  className="text-primary"
+                  strokeWidth={1.5}
+                />
               </div>
               <div className="water-waves">
                 <Waves size={80} className="wave-1" />
@@ -109,8 +135,12 @@ function LandingPage() {
                 <Waves size={80} className="wave-3" />
               </div>
               <div className="floating-items">
-                <div className="float-item item-1"><MapPin size={24} /></div>
-                <div className="float-item item-2"><LifeBuoy size={24} /></div>
+                <div className="float-item item-1">
+                  <MapPin size={24} />
+                </div>
+                <div className="float-item item-2">
+                  <LifeBuoy size={24} />
+                </div>
               </div>
             </div>
           </div>
@@ -123,24 +153,26 @@ function LandingPage() {
             </h1>
             <p className="hero-subtitle">
               แพลตฟอร์มกลางเพื่อชาวหาดใหญ่และสงขลา แจ้งพิกัดน้ำท่วม
-              และขอความช่วยเหลือฉุกเฉินได้ทันที เชื่อมต่อผู้ให้และผู้รับแบบเรียลไทม์
+              และขอความช่วยเหลือฉุกเฉินได้ทันที
+              เชื่อมต่อผู้ให้และผู้รับแบบเรียลไทม์
             </p>
             <div className="hero-cta flex gap-4">
-              <button className="btn btn-secondary btn-lg" onClick={() => navigate('/map?mode=HELP')}>
+              <button
+                className="btn btn-secondary btn-lg"
+                onClick={() => navigate("/map?mode=HELP")}
+              >
                 <MapPin size={20} className="mr-2" />
                 แจ้งขอความช่วยเหลือ
               </button>
-              <button className="btn btn-outline btn-lg" onClick={() => navigate('/map?mode=SHOP')}>
+              <button
+                className="btn btn-outline btn-lg"
+                onClick={() => navigate("/map?mode=SHOP")}
+              >
                 <Navigation size={20} className="mr-2" />
                 ร้านค้าปักหมุด
               </button>
-              <button className="btn btn-outline btn-lg hide-on-desktop" onClick={() => navigate('/admin')}>
-                <Shield size={20} className="mr-2" />
-                สำหรับหน่วยงาน
-              </button>
             </div>
           </div>
-
         </div>
       </header>
 
@@ -158,7 +190,10 @@ function LandingPage() {
                 <LogIn size={40} className="step-icon" />
               </div>
               <h3>1. เข้าสู่ระบบ</h3>
-              <p>กดปุ่มเข้าสู่ระบบเพื่อยืนยันตัวตน (หากใช้มือถือให้กดเมนู 3 ขีดมุมขวาบน)</p>
+              <p>
+                กดปุ่มเข้าสู่ระบบเพื่อยืนยันตัวตน (หากใช้มือถือให้กดเมนู 3
+                ขีดมุมขวาบน)
+              </p>
             </div>
 
             {/* Step 2 */}
@@ -167,7 +202,9 @@ function LandingPage() {
                 <MapPin size={40} className="step-icon" />
               </div>
               <h3>2. ปักหมุดตำแหน่ง</h3>
-              <p>ระบุตำแหน่งของคุณบนแผนที่เพื่อให้เจ้าหน้าที่เข้าถึงได้แม่นยำ</p>
+              <p>
+                ระบุตำแหน่งของคุณบนแผนที่เพื่อให้เจ้าหน้าที่เข้าถึงได้แม่นยำ
+              </p>
             </div>
 
             {/* Step 3 */}
@@ -194,20 +231,28 @@ function LandingPage() {
                 <Trash2 size={40} className="step-icon" />
               </div>
               <h3>5. ลบหมุดเมื่อเสร็จสิ้น</h3>
-              <p>ถ้าได้รับความช่วยเหลือแล้วรบกวนกดที่หมุดตัวเองแล้วลบออกด้วย ขอบคุณครับ</p>
+              <p>
+                ถ้าได้รับความช่วยเหลือแล้วรบกวนกดที่หมุดตัวเองแล้วลบออกด้วย
+                ขอบคุณครับ
+              </p>
             </div>
           </div>
         </div>
       </section>
-      
+
       {/* Footer */}
       <footer className="footer">
         <div className="container flex items-center justify-between">
           <div className="footer-contact flex items-center justify-center gap-2 flex-wrap">
             {/* <Phone size={18} /> */}
-            <span className="footer-phone">สายด่วนฉุกเฉิน: 1669 แพทย์ฉุกเฉิน, 1163 กู้ภัย</span>
+            <span className="footer-phone">
+              สายด่วนฉุกเฉิน: 1669 แพทย์ฉุกเฉิน, 1163 กู้ภัย
+            </span>
           </div>
-          <p className="copyright">create by Patcharakiri Sichat computer science Chulalongkorn 0991648465</p>
+          <p className="copyright">
+            create by Patcharakiri Sichat computer science Chulalongkorn
+            0991648465
+          </p>
         </div>
       </footer>
     </div>
